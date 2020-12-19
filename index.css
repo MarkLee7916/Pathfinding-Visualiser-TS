@@ -1,0 +1,90 @@
+#page {
+  font-family: Helvetica-Neue, sans-serif;
+  background-image: linear-gradient(to right, #cfd9df, #e2ebf0);
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  overflow: auto;
+}
+
+header {
+  background: black;
+  text-align: center;
+  padding-top: 18px;
+  padding-bottom: 18px;
+  margin-bottom: 20px;
+}
+
+header::before,
+header::after {
+  content: " ";
+  display: table;
+  clear: both;
+}
+
+.menu-button {
+  border: none;
+  background-color: black;
+  font-size: 16px;
+  color: white;
+  cursor: pointer;
+  outline: none;
+}
+
+.menu-button:hover {
+  opacity: 0.5;
+}
+
+.menu-text {
+  font-size: 16px;
+  color: white;
+}
+
+.menu-segment {
+  padding-left: 50px;
+  padding-right: 50px;
+}
+
+#menu {
+  display: inline-flexbox;
+}
+
+.color-codes {
+  margin-left: 10px;
+  font-size: 16px;
+}
+
+#grid {
+  border-collapse: collapse;
+  table-layout: fixed;
+  overflow: hidden;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 20px;
+}
+
+#description {
+  padding-top: 20px;
+  width: 50%;
+  margin: 0 auto;
+}
+
+.row {
+  overflow: hidden;
+}
+
+.tile {
+  border: 1px solid gray;
+  cursor: pointer;
+  overflow: hidden;
+  font-weight: 900;
+  color: gray;
+}
+
+.tile:hover {
+  opacity: 0.5;
+}

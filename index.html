@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Pathfinding Visualiser</title>
+        <meta charset="utfc8" />
+        <link rel="stylesheet" href="index.css" />
+    </head>
+
+    <body>
+        <div id="page">
+            <header>
+                <nav>
+                    <ul id="menu">
+                        <span class="menu-segment">
+                            <select id="select-algo" class="menu-button">
+                                <option value="a-star">A*</option>
+                                <option value="best-first-search">Greedy Best First Search</option>
+                                <option value="depth-first-search">Depth First Search</option>
+                                <option value="breadth-first-search">Breadth First Search</option>
+                                <option value="dijkstra">Dijkstra's</option>
+                                <option value="bidirectional-a-star">Bidirectional A*</option>
+                                <option value="bidirectional-GBFS">Bidirectional GBFS</option>
+                                <option value="bidirectional-DFS">Bidirectional DFS</option>
+                                <option value="bidirectional-BFS">Bidirectional BFS</option>                               
+                                <option value="bidirectional-dijkstra">Bidirectional Dijkstra's</option>                           
+                            </select>
+                        </span>
+
+                        <span class="menu-segment">
+                            <select id="wall-pattern" class="menu-button">
+                                <option selected disabled value="not-selected">Wall Patterns:</option>
+                                <option value="random-maze">Random Maze</option>
+                                <option value="divide-horizontal">Divide Horizontal</option>
+                                <option value="divide-vertical">Divide Vertical</option>
+                            </select>
+                        </span>
+
+                        <span class="menu-segment">
+                            <select id="block-type" class="menu-button">
+                                <option value="wall">Add Walls</option>
+                                <option value="weight">Add Weights</option>
+                            </select>
+                        </span>
+
+                        <span class="menu-segment">
+                            <button class="menu-button" id="reset-walls">Reset Walls and Weights</button>
+                        </span>
+
+                        <span class="menu-segment">
+                            <button class="menu-button" id="reset-path">Reset Path</button>
+                        </span>
+
+                        <span class="menu-segment">
+                            <button class="menu-button" id="run-algo">Run Algorithm</button>
+                        </span>
+                    </ul>
+                </nav>
+            </header>
+
+            <span class="color-codes">🟥 Start</span>
+            <span class="color-codes">🟧 Goal</span>
+            <span class="color-codes">🟦 Searching</span>
+            <span class="color-codes">🟩 Frontier</span>           
+            <span class="color-codes">⬜ Unvisited</span>
+            <span class="color-codes">⬛ Wall</span>
+            <span class="color-codes">🟨 Final Path</span>        
+
+            <div id="description">
+                A* combines heuristics and lowest weight path, so guarantees the shortest path if we use a proper heuristic
+            </div>
+
+            <table id="grid"></table>
+        </div>
+    </body>
+
+    <script src="compiledJS/bundle.js" type="module"></script>
+</html>
