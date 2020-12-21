@@ -1,5 +1,6 @@
 import { Collection } from "./collection";
 
+// A wrapper around the default list to implement the collection interface
 export class Stack<T> implements Collection<T> {
     private readonly stack: T[];
 

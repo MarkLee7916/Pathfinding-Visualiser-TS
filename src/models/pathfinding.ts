@@ -4,13 +4,13 @@ import { PriorityQueue } from "./priorityQueue";
 import { Stack } from "./stack";
 import { Queue } from "./queue";
 import { Collection } from "./collection";
-import { Coord, HEIGHT, WIDTH } from "../controllers/controller";
+import { Coord, HEIGHT, WIDTH } from "../controllers/constants";
 import { Vertice } from "./vertice";
 import { generateGrid, randomIntBetween } from "./utils";
 import { generateAStarComparator, generateDijkstraComparator, generateGoalDistComparator } from "./comparators";
 
 type Weights = number[][];
-export type Node = Vertice<Coord>
+export type Node = Vertice<Coord>;
 
 // The protocol we use to talk to the controller
 export const enum ModelMessages {
@@ -23,33 +23,46 @@ export const enum ModelMessages {
     RenderWeight
 }
 
-let walls: Grid;
+// Keeps track of where the pathfinding algos can't cross
+const walls = new Grid();
+
+// Keeps track of which tiles are weighted
+const weights = generateGrid(1);
+
+// Allows us to tell the controller to execute some effect
 let notifyController: (message: ModelMessages, content: any) => void;
+
+// Coordinate of the starting tile 
 let start: Coord;
+
+// Coordinate of the goal tile
 let goal: Coord;
-let weights: Weights;
+
+// The function for placing either a weight or wall
+// Allows us to generically place either a weight or a wall
 let tilePlacementFunc = toggleWall;
 
 export function initPathfinding(notif: (message: ModelMessages, content: any) => void) {
     notifyController = notif;
-    walls = new Grid();
-    weights = generateGrid(1);
 }
 
+// Wrapper around tilePlacementFunc to avoid having to expose reassignable state
 export function toggleTile(coord: Coord) {
     tilePlacementFunc(coord);
 }
 
+// If there's a wall at coord, remove it. Else, add a wall there
 export function toggleWall(coord: Coord) {
     if (walls.has(coord)) {
         notifyController(ModelMessages.RemoveWall, coord);
-        walls.remove(coord);
+        walls.unfill(coord);
     } else if (!isStart(coord) && !isGoal(coord)) {
         notifyController(ModelMessages.RenderWall, coord);
-        walls.add(coord);
+        walls.fill(coord);
     }
 }
 
+// If there's a weight at coord, remove it. Else, add a weight there
 export function toggleWeight([row, col]: Coord) {
     const coord: Coord = [row, col];
 
@@ -72,7 +85,8 @@ export function setGoal(coord: Coord) {
     goal = coord;
 }
 
-export function resetBlocks() {
+// Remove all weights and walls
+export function resetWalls() {
     for (let row = 0; row < HEIGHT; row++) {
         for (let col = 0; col < WIDTH; col++) {
             const coord: Coord = [row, col];
@@ -121,8 +135,9 @@ export async function Dijkstra() {
     await genericUnidirectionalSearch(priorityQueue, weights);
 }
 
+// Reset walls and generate a random maze of whatever wall type user has selected
 export function randomMaze() {
-    resetBlocks();
+    resetWalls();
 
     for (let row = 0; row < HEIGHT; row++) {
         fillRowRandomly(row);
@@ -179,18 +194,21 @@ export async function bidirectionalAStar() {
     await genericBidirectionalSearch(forwardPriorityQueue, backwardPriorityQueue, weights);
 }
 
+// Reset walls and generate a vertical maze of whatever wall type user has selected
 export function divideVertical() {
-    resetBlocks();
+    resetWalls();
 
     divideVertically(0, 0, HEIGHT, WIDTH);
 }
 
+// Reset walls and generate a horizontal maze of whatever wall type user has selected
 export function divideHorizontal() {
-    resetBlocks();
+    resetWalls();
     
     divideHorizontally(0, 0, HEIGHT, WIDTH);
 }
 
+// Algorithm for generating a vertical maze
 function divideVertically(baseRow: number, baseCol: number, height: number, width: number) {
     if (width > 2 && height > 2) {
         const upperCol = baseCol + width;
@@ -209,6 +227,7 @@ function divideVertically(baseRow: number, baseCol: number, height: number, widt
     }   
 }
 
+// Algorithm for generating a horizontal maze
 function divideHorizontally(baseRow: number, baseCol: number, height: number, width: number) {
     if (width > 2 && height > 2) {
         const upperRow = baseRow + height;
@@ -227,6 +246,7 @@ function divideHorizontally(baseRow: number, baseCol: number, height: number, wi
     }   
 }
 
+// Generic pathfinding algo for searching from a source. Parameterized with the data structure used to make it generic
 async function genericUnidirectionalSearch(coords: Collection<Node>, weights: Weights) {
     const path = new HashMap<Coord, Coord>();
     const visited = new Grid();
@@ -235,7 +255,7 @@ async function genericUnidirectionalSearch(coords: Collection<Node>, weights: We
 
     startVertice.updateDist(0);
     coords.add(startVertice);
-    visited.add(start);
+    visited.fill(start);
 
     while (!coords.isEmpty()) {
         const isFound = await considerNextNode(path, visited, coords, goal, weights, considered);
@@ -247,6 +267,7 @@ async function genericUnidirectionalSearch(coords: Collection<Node>, weights: We
     }
 }
 
+// Generic pathfinding algo for searching from both the source and goal concurrently
 async function genericBidirectionalSearch(forwardsNodes: Collection<Node>, backwardsNodes: Collection<Node>, weights: Weights) {
     const forwardsPath = new HashMap<Coord, Coord>();
     const backwardsPath = new HashMap<Coord, Coord>();
@@ -266,8 +287,8 @@ async function genericBidirectionalSearch(forwardsNodes: Collection<Node>, backw
     forwardsNodes.add(startVertice);
     backwardsNodes.add(goalVertice);
 
-    forwardsVisited.add(start);
-    backwardsVisited.add(goal);
+    forwardsVisited.fill(start);
+    backwardsVisited.fill(goal);
 
     while (!forwardsNodes.isEmpty() && !backwardsNodes.isEmpty()) {
         const foundForwards = await considerNextNode(forwardsPath, forwardsVisited, forwardsNodes, goal, weights, forwardsConsidered);
@@ -289,11 +310,12 @@ async function genericBidirectionalSearch(forwardsNodes: Collection<Node>, backw
     }
 }
 
+// Generic function for making one step in a pathfinding algorithm
 async function considerNextNode(path: HashMap<Coord, Coord>, visited: Grid, nodes: Collection<Node>, target: Coord, weights: Weights, considered: Grid) {
     const currentPos = nodes.remove();
     const currentNeighbours = generateNeighbours(currentPos.val());
 
-    considered.add(currentPos.val());
+    considered.fill(currentPos.val());
     await notifyController(ModelMessages.RenderSearching, currentPos.val());
 
     if (isTarget(currentPos.val(), target)) {
@@ -311,7 +333,7 @@ async function considerNextNode(path: HashMap<Coord, Coord>, visited: Grid, node
                 neighbourVertice.updateDist(newNeighbourDistance);
 
                 nodes.add(neighbourVertice);
-                visited.add(neighbour);
+                visited.fill(neighbour);
                 path.add(neighbour, currentPos.val());
             } else if (newNeighbourDistance < neighbourVertice.dist()) {
                 neighbourVertice.updateDist(newNeighbourDistance);
@@ -320,6 +342,7 @@ async function considerNextNode(path: HashMap<Coord, Coord>, visited: Grid, node
     });
 }
 
+// Fill some tiles in a row while leaving others
 function fillRowRandomly(row: number) {
     const randomComparator = (x: number, y: number) => Math.random() - 0.5;
     const priorityQueue = new PriorityQueue<number>(randomComparator);
@@ -354,6 +377,7 @@ function isGoal([row, col]: Coord) {
     return row === goalRow && col === goalCol;
 }
 
+// Tell controller to display the final path
 async function renderFinalPath(path: HashMap<Coord, Coord>, target: Coord) {
     let pos = target;
 

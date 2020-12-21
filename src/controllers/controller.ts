@@ -1,10 +1,7 @@
-import { bestFirstSearch, breadthFirstSearch, depthFirstSearch, initPathfinding, ModelMessages, resetBlocks, setGoal, setStart, randomMaze, AStar, Dijkstra, setBlockTypeToWall, setBlockTypeToWeight, bidirectionalDFS, bidirectionalBFS, bidirectionalBestFirstSearch, bidirectionalDijkstra, bidirectionalAStar, toggleTile, divideHorizontal, divideVertical } from "../models/pathfinding";
-import { initView, removeWeightInDOM, renderBlankTileInDOM, renderFinalPathTileInDOM, renderFrontierInDOM, renderSearchingTileInDOM, renderWallTileInDOM, renderWeightInDOM, ViewMessages } from "../views/view";
-
-export const HEIGHT = 20;
-export const WIDTH = 40;
-export type Coord = [number, number]
+import { bestFirstSearch, breadthFirstSearch, depthFirstSearch, initPathfinding, ModelMessages, resetWalls, setGoal, setStart, randomMaze, AStar, Dijkstra, setBlockTypeToWall, setBlockTypeToWeight, bidirectionalDFS, bidirectionalBFS, bidirectionalBestFirstSearch, bidirectionalDijkstra, bidirectionalAStar, toggleTile, divideHorizontal, divideVertical } from "../models/pathfinding";
+import { initView, removeWeightFromTileInDOM, renderBlankTileInDOM, renderPathTileInDOM, renderFrontierInDOM, renderSearchingTileInDOM, renderWallTileInDOM, renderWeightOnTileInDOM, ViewMessages } from "../views/view";
     
+// Map an HTML value representation of a pathfinding algorithm to an actual implementation
 const algoStrToFunction = new Map<string, () => void>([
     ["best-first-search", bestFirstSearch],
     ["breadth-first-search", breadthFirstSearch],
@@ -18,12 +15,14 @@ const algoStrToFunction = new Map<string, () => void>([
     ["bidirectional-a-star", bidirectionalAStar]
 ]);
 
-const blockTypeStrToFunction = new Map<string, () => void>([
+// Map an HTML value representation of a wall type to a function that sets it to that wall type
+const wallTypeStrToFunction = new Map<string, () => void>([
     ["wall", setBlockTypeToWall],
     ["weight", setBlockTypeToWeight]
 ]);
 
-const generateWallStrToFunction = new Map<string, () => void>([
+// Map an HTML value representation of a maze generation algorithm to an actual implentation
+const generateMazeStrToFunction = new Map<string, () => void>([
     ["random-maze", randomMaze],
     ["divide-horizontal", divideHorizontal],
     ["divide-vertical", divideVertical]
@@ -34,18 +33,18 @@ const viewMessageToAction = new Map([
     [ViewMessages.SetStart, content => setStart(<[number, number]>content)],
     [ViewMessages.SetGoal, content => setGoal(<[number, number]>content)],
     [ViewMessages.RunAlgo, async content => await algoStrToFunction.get(<string>content)()],
-    [ViewMessages.ResetBlocks, _ => resetBlocks()],
-    [ViewMessages.GenerateMaze, content => generateWallStrToFunction.get(<string>content)()],
-    [ViewMessages.SetBlockType, content => blockTypeStrToFunction.get(<string>content)()]
+    [ViewMessages.ResetBlocks, _ => resetWalls()],
+    [ViewMessages.GenerateMaze, content => generateMazeStrToFunction.get(<string>content)()],
+    [ViewMessages.SetWallType, content => wallTypeStrToFunction.get(<string>content)()]
 ]);
 
 const modelMessageToAction = new Map([
-    [ModelMessages.RenderPathTile, async content => await renderFinalPathTileInDOM(<[number, number]>content)],
+    [ModelMessages.RenderPathTile, async content => await renderPathTileInDOM(<[number, number]>content)],
     [ModelMessages.RenderSearching, async content => await renderSearchingTileInDOM(<[number, number]>content)],
     [ModelMessages.RenderWall, content => renderWallTileInDOM(<[number, number]>content)],
     [ModelMessages.RemoveWall, content => renderBlankTileInDOM(<[number, number]>content)],
-    [ModelMessages.RenderWeight, content => renderWeightInDOM(<[number, number, number]>content)],
-    [ModelMessages.RemoveWeight, content => removeWeightInDOM(<[number, number]>content)],
+    [ModelMessages.RenderWeight, content => renderWeightOnTileInDOM(<[number, number, number]>content)],
+    [ModelMessages.RemoveWeight, content => removeWeightFromTileInDOM(<[number, number]>content)],
     [ModelMessages.RenderFrontier, async content => await renderFrontierInDOM(<[number, number]>content)],
 ]);
 

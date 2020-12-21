@@ -1,4 +1,4 @@
-import { HEIGHT, WIDTH } from "../controllers/controller";
+import { HEIGHT, WIDTH } from "../controllers/constants";
 import { generateGrid } from "./utils";
 
 export class Grid {
@@ -16,12 +16,14 @@ export class Grid {
         }
     }
 
+    // Return true if the given grids have any tiles in common filled in
     public static hasIntersection(grid: Grid, matrix: Grid) {
         const [row, col] =  Grid.intersection(grid, matrix);
 
         return row !== -1 && col !== -1;
     }
 
+    // Return the coordinates of the tiles that the given grids both have filled in
     public static intersection(grid: Grid, matrix: Grid): [number, number] {
         for (let row = 0; row < HEIGHT; row++) {
             for (let col = 0; col < WIDTH; col++) {
@@ -36,7 +38,7 @@ export class Grid {
         return [-1, -1];
     }
 
-    public add([row, col]: [number, number]) {
+    public fill([row, col]: [number, number]) {
         if (this.isOutOfBounds([row, col])) {
             throw `Invalid arguments, must be within bounds of grid. Supplied args were row: ${row} col: ${col}`;
         }
@@ -44,7 +46,7 @@ export class Grid {
         this.grid[row][col] = true;
     }
 
-    public remove([row, col]: [number, number]) {
+    public unfill([row, col]: [number, number]) {
         if (this.isOutOfBounds([row, col])) {
             throw `Invalid arguments, must be within bounds of grid. Supplied args were row: ${row} col: ${col}`;
         }

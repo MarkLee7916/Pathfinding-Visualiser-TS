@@ -8,7 +8,7 @@ export function getDOMElem(selector: string) {
     }
 }
 
-export function initGridInDOM(selector: string, height: number, width: number, heightPixels: number, widthPixels: number, tileColor: string) {
+export function initGenericGridInDOM(selector: string, height: number, width: number, heightPixels: number, widthPixels: number, tileColor: string) {
     const elemDOM = getDOMElem(selector);
 
     for (let row = 0; row < height; row++) {

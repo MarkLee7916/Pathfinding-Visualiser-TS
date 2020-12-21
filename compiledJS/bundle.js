@@ -1,5 +1,12 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 "use strict";
+exports.__esModule = true;
+exports.WIDTH = exports.HEIGHT = void 0;
+exports.HEIGHT = 20;
+exports.WIDTH = 40;
+
+},{}],2:[function(require,module,exports){
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -37,11 +44,9 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.WIDTH = exports.HEIGHT = void 0;
 var pathfinding_1 = require("../models/pathfinding");
 var view_1 = require("../views/view");
-exports.HEIGHT = 20;
-exports.WIDTH = 40;
+// Map an HTML value representation of a pathfinding algorithm to an actual implementation
 var algoStrToFunction = new Map([
     ["best-first-search", pathfinding_1.bestFirstSearch],
     ["breadth-first-search", pathfinding_1.breadthFirstSearch],
@@ -54,11 +59,13 @@ var algoStrToFunction = new Map([
     ["bidirectional-dijkstra", pathfinding_1.bidirectionalDijkstra],
     ["bidirectional-a-star", pathfinding_1.bidirectionalAStar]
 ]);
-var blockTypeStrToFunction = new Map([
+// Map an HTML value representation of a wall type to a function that sets it to that wall type
+var wallTypeStrToFunction = new Map([
     ["wall", pathfinding_1.setBlockTypeToWall],
     ["weight", pathfinding_1.setBlockTypeToWeight]
 ]);
-var generateWallStrToFunction = new Map([
+// Map an HTML value representation of a maze generation algorithm to an actual implentation
+var generateMazeStrToFunction = new Map([
     ["random-maze", pathfinding_1.randomMaze],
     ["divide-horizontal", pathfinding_1.divideHorizontal],
     ["divide-vertical", pathfinding_1.divideVertical]
@@ -73,14 +80,14 @@ var viewMessageToAction = new Map([
                 case 1: return [2 /*return*/, _a.sent()];
             }
         }); }); }],
-    [4 /* ResetBlocks */, function (_) { return pathfinding_1.resetBlocks(); }],
-    [5 /* GenerateMaze */, function (content) { return generateWallStrToFunction.get(content)(); }],
-    [6 /* SetBlockType */, function (content) { return blockTypeStrToFunction.get(content)(); }]
+    [4 /* ResetBlocks */, function (_) { return pathfinding_1.resetWalls(); }],
+    [5 /* GenerateMaze */, function (content) { return generateMazeStrToFunction.get(content)(); }],
+    [6 /* SetWallType */, function (content) { return wallTypeStrToFunction.get(content)(); }]
 ]);
 var modelMessageToAction = new Map([
     [0 /* RenderPathTile */, function (content) { return __awaiter(void 0, void 0, void 0, function () { return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, view_1.renderFinalPathTileInDOM(content)];
+                case 0: return [4 /*yield*/, view_1.renderPathTileInDOM(content)];
                 case 1: return [2 /*return*/, _a.sent()];
             }
         }); }); }],
@@ -92,8 +99,8 @@ var modelMessageToAction = new Map([
         }); }); }],
     [2 /* RenderWall */, function (content) { return view_1.renderWallTileInDOM(content); }],
     [3 /* RemoveWall */, function (content) { return view_1.renderBlankTileInDOM(content); }],
-    [6 /* RenderWeight */, function (content) { return view_1.renderWeightInDOM(content); }],
-    [5 /* RemoveWeight */, function (content) { return view_1.removeWeightInDOM(content); }],
+    [6 /* RenderWeight */, function (content) { return view_1.renderWeightOnTileInDOM(content); }],
+    [5 /* RemoveWeight */, function (content) { return view_1.removeWeightFromTileInDOM(content); }],
     [4 /* RenderFrontier */, function (content) { return __awaiter(void 0, void 0, void 0, function () { return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, view_1.renderFrontierInDOM(content)];
@@ -144,7 +151,7 @@ function readMessageFromModel(message, content) {
     pathfinding_1.initPathfinding(readMessageFromModel);
 })();
 
-},{"../models/pathfinding":5,"../views/view":11}],2:[function(require,module,exports){
+},{"../models/pathfinding":6,"../views/view":12}],3:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 exports.generateDijkstraComparator = exports.generateAStarComparator = exports.generateGoalDistComparator = void 0;
@@ -158,6 +165,7 @@ function generateGoalDistComparator(_a) {
     };
 }
 exports.generateGoalDistComparator = generateGoalDistComparator;
+// Return a comparator that combines a goal based heuristic with a lowest weights heuristic
 function generateAStarComparator(goal) {
     return function (node1, node2) {
         var dijkstraHeuristic = generateDijkstraComparator()(node1, node2);
@@ -166,16 +174,17 @@ function generateAStarComparator(goal) {
     };
 }
 exports.generateAStarComparator = generateAStarComparator;
+// Return a comparator that implements a heuristic that is biased in favour of the lowest weight nodes
 function generateDijkstraComparator() {
     return function (node1, node2) { return node2.dist() - node1.dist(); };
 }
 exports.generateDijkstraComparator = generateDijkstraComparator;
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 exports.Grid = void 0;
-var controller_1 = require("../controllers/controller");
+var constants_1 = require("../controllers/constants");
 var utils_1 = require("./utils");
 var Grid = /** @class */ (function () {
     function Grid() {
@@ -190,13 +199,15 @@ var Grid = /** @class */ (function () {
             return this.grid[row][col];
         }
     };
+    // Return true if the given grids have any tiles in common filled in
     Grid.hasIntersection = function (grid, matrix) {
         var _a = Grid.intersection(grid, matrix), row = _a[0], col = _a[1];
         return row !== -1 && col !== -1;
     };
+    // Return the coordinates of the tiles that the given grids both have filled in
     Grid.intersection = function (grid, matrix) {
-        for (var row = 0; row < controller_1.HEIGHT; row++) {
-            for (var col = 0; col < controller_1.WIDTH; col++) {
+        for (var row = 0; row < constants_1.HEIGHT; row++) {
+            for (var col = 0; col < constants_1.WIDTH; col++) {
                 var coord = [row, col];
                 if (grid.has(coord) && matrix.has(coord)) {
                     return coord;
@@ -205,14 +216,14 @@ var Grid = /** @class */ (function () {
         }
         return [-1, -1];
     };
-    Grid.prototype.add = function (_a) {
+    Grid.prototype.fill = function (_a) {
         var row = _a[0], col = _a[1];
         if (this.isOutOfBounds([row, col])) {
             throw "Invalid arguments, must be within bounds of grid. Supplied args were row: " + row + " col: " + col;
         }
         this.grid[row][col] = true;
     };
-    Grid.prototype.remove = function (_a) {
+    Grid.prototype.unfill = function (_a) {
         var row = _a[0], col = _a[1];
         if (this.isOutOfBounds([row, col])) {
             throw "Invalid arguments, must be within bounds of grid. Supplied args were row: " + row + " col: " + col;
@@ -221,13 +232,13 @@ var Grid = /** @class */ (function () {
     };
     Grid.prototype.isOutOfBounds = function (_a) {
         var row = _a[0], col = _a[1];
-        return row < 0 || col < 0 || row >= controller_1.HEIGHT || col >= controller_1.WIDTH;
+        return row < 0 || col < 0 || row >= constants_1.HEIGHT || col >= constants_1.WIDTH;
     };
     return Grid;
 }());
 exports.Grid = Grid;
 
-},{"../controllers/controller":1,"./utils":9}],4:[function(require,module,exports){
+},{"../controllers/constants":1,"./utils":10}],5:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 exports.HashMap = void 0;
@@ -246,7 +257,7 @@ var HashMap = /** @class */ (function () {
 }());
 exports.HashMap = HashMap;
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -285,43 +296,51 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.divideHorizontal = exports.divideVertical = exports.bidirectionalAStar = exports.bidirectionalDijkstra = exports.bidirectionalBestFirstSearch = exports.bidirectionalBFS = exports.bidirectionalDFS = exports.setBlockTypeToWeight = exports.setBlockTypeToWall = exports.randomMaze = exports.Dijkstra = exports.AStar = exports.bestFirstSearch = exports.breadthFirstSearch = exports.depthFirstSearch = exports.resetBlocks = exports.setGoal = exports.setStart = exports.toggleWeight = exports.toggleWall = exports.toggleTile = exports.initPathfinding = void 0;
+exports.divideHorizontal = exports.divideVertical = exports.bidirectionalAStar = exports.bidirectionalDijkstra = exports.bidirectionalBestFirstSearch = exports.bidirectionalBFS = exports.bidirectionalDFS = exports.setBlockTypeToWeight = exports.setBlockTypeToWall = exports.randomMaze = exports.Dijkstra = exports.AStar = exports.bestFirstSearch = exports.breadthFirstSearch = exports.depthFirstSearch = exports.resetWalls = exports.setGoal = exports.setStart = exports.toggleWeight = exports.toggleWall = exports.toggleTile = exports.initPathfinding = void 0;
 var grid_1 = require("./grid");
 var hashMap_1 = require("./hashMap");
 var priorityQueue_1 = require("./priorityQueue");
 var stack_1 = require("./stack");
 var queue_1 = require("./queue");
-var controller_1 = require("../controllers/controller");
+var constants_1 = require("../controllers/constants");
 var vertice_1 = require("./vertice");
 var utils_1 = require("./utils");
 var comparators_1 = require("./comparators");
-var walls;
+// Keeps track of where the pathfinding algos can't cross
+var walls = new grid_1.Grid();
+// Keeps track of which tiles are weighted
+var weights = utils_1.generateGrid(1);
+// Allows us to tell the controller to execute some effect
 var notifyController;
+// Coordinate of the starting tile 
 var start;
+// Coordinate of the goal tile
 var goal;
-var weights;
+// The function for placing either a weight or wall
+// Allows us to generically place either a weight or a wall
 var tilePlacementFunc = toggleWall;
 function initPathfinding(notif) {
     notifyController = notif;
-    walls = new grid_1.Grid();
-    weights = utils_1.generateGrid(1);
 }
 exports.initPathfinding = initPathfinding;
+// Wrapper around tilePlacementFunc to avoid having to expose reassignable state
 function toggleTile(coord) {
     tilePlacementFunc(coord);
 }
 exports.toggleTile = toggleTile;
+// If there's a wall at coord, remove it. Else, add a wall there
 function toggleWall(coord) {
     if (walls.has(coord)) {
         notifyController(3 /* RemoveWall */, coord);
-        walls.remove(coord);
+        walls.unfill(coord);
     }
     else if (!isStart(coord) && !isGoal(coord)) {
         notifyController(2 /* RenderWall */, coord);
-        walls.add(coord);
+        walls.fill(coord);
     }
 }
 exports.toggleWall = toggleWall;
+// If there's a weight at coord, remove it. Else, add a weight there
 function toggleWeight(_a) {
     var row = _a[0], col = _a[1];
     var coord = [row, col];
@@ -344,9 +363,10 @@ function setGoal(coord) {
     goal = coord;
 }
 exports.setGoal = setGoal;
-function resetBlocks() {
-    for (var row = 0; row < controller_1.HEIGHT; row++) {
-        for (var col = 0; col < controller_1.WIDTH; col++) {
+// Remove all weights and walls
+function resetWalls() {
+    for (var row = 0; row < constants_1.HEIGHT; row++) {
+        for (var col = 0; col < constants_1.WIDTH; col++) {
             var coord = [row, col];
             if (walls.has(coord)) {
                 toggleWall(coord);
@@ -357,7 +377,7 @@ function resetBlocks() {
         }
     }
 }
-exports.resetBlocks = resetBlocks;
+exports.resetWalls = resetWalls;
 function depthFirstSearch() {
     return __awaiter(this, void 0, void 0, function () {
         var stack;
@@ -441,9 +461,10 @@ function Dijkstra() {
     });
 }
 exports.Dijkstra = Dijkstra;
+// Reset walls and generate a random maze of whatever wall type user has selected
 function randomMaze() {
-    resetBlocks();
-    for (var row = 0; row < controller_1.HEIGHT; row++) {
+    resetWalls();
+    for (var row = 0; row < constants_1.HEIGHT; row++) {
         fillRowRandomly(row);
     }
 }
@@ -546,16 +567,19 @@ function bidirectionalAStar() {
     });
 }
 exports.bidirectionalAStar = bidirectionalAStar;
+// Reset walls and generate a vertical maze of whatever wall type user has selected
 function divideVertical() {
-    resetBlocks();
-    divideVertically(0, 0, controller_1.HEIGHT, controller_1.WIDTH);
+    resetWalls();
+    divideVertically(0, 0, constants_1.HEIGHT, constants_1.WIDTH);
 }
 exports.divideVertical = divideVertical;
+// Reset walls and generate a horizontal maze of whatever wall type user has selected
 function divideHorizontal() {
-    resetBlocks();
-    divideHorizontally(0, 0, controller_1.HEIGHT, controller_1.WIDTH);
+    resetWalls();
+    divideHorizontally(0, 0, constants_1.HEIGHT, constants_1.WIDTH);
 }
 exports.divideHorizontal = divideHorizontal;
+// Algorithm for generating a vertical maze
 function divideVertically(baseRow, baseCol, height, width) {
     if (width > 2 && height > 2) {
         var upperCol = baseCol + width;
@@ -571,6 +595,7 @@ function divideVertically(baseRow, baseCol, height, width) {
         divideVertically(baseRow, wallCol + 1, height, (baseCol + width - wallCol) - 1);
     }
 }
+// Algorithm for generating a horizontal maze
 function divideHorizontally(baseRow, baseCol, height, width) {
     if (width > 2 && height > 2) {
         var upperRow = baseRow + height;
@@ -586,6 +611,7 @@ function divideHorizontally(baseRow, baseCol, height, width) {
         divideHorizontally(wallRow + 1, baseCol, (baseRow + height - wallRow) - 1, width);
     }
 }
+// Generic pathfinding algo for searching from a source. Parameterized with the data structure used to make it generic
 function genericUnidirectionalSearch(coords, weights) {
     return __awaiter(this, void 0, void 0, function () {
         var path, visited, considered, startVertice, isFound;
@@ -598,7 +624,7 @@ function genericUnidirectionalSearch(coords, weights) {
                     startVertice = new vertice_1.Vertice(start);
                     startVertice.updateDist(0);
                     coords.add(startVertice);
-                    visited.add(start);
+                    visited.fill(start);
                     _a.label = 1;
                 case 1:
                     if (!!coords.isEmpty()) return [3 /*break*/, 5];
@@ -616,6 +642,7 @@ function genericUnidirectionalSearch(coords, weights) {
         });
     });
 }
+// Generic pathfinding algo for searching from both the source and goal concurrently
 function genericBidirectionalSearch(forwardsNodes, backwardsNodes, weights) {
     return __awaiter(this, void 0, void 0, function () {
         var forwardsPath, backwardsPath, forwardsVisited, backwardsVisited, forwardsConsidered, backwardsConsidered, startVertice, goalVertice, foundForwards, foundBackwards, intersection;
@@ -634,8 +661,8 @@ function genericBidirectionalSearch(forwardsNodes, backwardsNodes, weights) {
                     goalVertice.updateDist(0);
                     forwardsNodes.add(startVertice);
                     backwardsNodes.add(goalVertice);
-                    forwardsVisited.add(start);
-                    backwardsVisited.add(goal);
+                    forwardsVisited.fill(start);
+                    backwardsVisited.fill(goal);
                     _a.label = 1;
                 case 1:
                     if (!(!forwardsNodes.isEmpty() && !backwardsNodes.isEmpty())) return [3 /*break*/, 11];
@@ -672,6 +699,7 @@ function genericBidirectionalSearch(forwardsNodes, backwardsNodes, weights) {
         });
     });
 }
+// Generic function for making one step in a pathfinding algorithm
 function considerNextNode(path, visited, nodes, target, weights, considered) {
     return __awaiter(this, void 0, void 0, function () {
         var currentPos, currentNeighbours;
@@ -680,7 +708,7 @@ function considerNextNode(path, visited, nodes, target, weights, considered) {
                 case 0:
                     currentPos = nodes.remove();
                     currentNeighbours = generateNeighbours(currentPos.val());
-                    considered.add(currentPos.val());
+                    considered.fill(currentPos.val());
                     return [4 /*yield*/, notifyController(1 /* RenderSearching */, currentPos.val())];
                 case 1:
                     _a.sent();
@@ -696,7 +724,7 @@ function considerNextNode(path, visited, nodes, target, weights, considered) {
                                 notifyController(4 /* RenderFrontier */, neighbour);
                                 neighbourVertice.updateDist(newNeighbourDistance);
                                 nodes.add(neighbourVertice);
-                                visited.add(neighbour);
+                                visited.fill(neighbour);
                                 path.add(neighbour, currentPos.val());
                             }
                             else if (newNeighbourDistance < neighbourVertice.dist()) {
@@ -709,14 +737,15 @@ function considerNextNode(path, visited, nodes, target, weights, considered) {
         });
     });
 }
+// Fill some tiles in a row while leaving others
 function fillRowRandomly(row) {
     var randomComparator = function (x, y) { return Math.random() - 0.5; };
     var priorityQueue = new priorityQueue_1.PriorityQueue(randomComparator);
     var density = 4;
-    for (var col = 0; col < controller_1.WIDTH; col++) {
+    for (var col = 0; col < constants_1.WIDTH; col++) {
         priorityQueue.add(col);
     }
-    for (var i = 0; i < controller_1.WIDTH / density; i++) {
+    for (var i = 0; i < constants_1.WIDTH / density; i++) {
         var wallCoord = [row, priorityQueue.remove()];
         if (!isGoal(wallCoord) && !isStart(wallCoord) && !walls.has(wallCoord)) {
             toggleTile(wallCoord);
@@ -738,6 +767,7 @@ function isGoal(_a) {
     var goalRow = goal[0], goalCol = goal[1];
     return row === goalRow && col === goalCol;
 }
+// Tell controller to display the final path
 function renderFinalPath(path, target) {
     return __awaiter(this, void 0, void 0, function () {
         var pos;
@@ -774,7 +804,7 @@ function addToNeighbours(neighbours, pos) {
     }
 }
 
-},{"../controllers/controller":1,"./comparators":2,"./grid":3,"./hashMap":4,"./priorityQueue":6,"./queue":7,"./stack":8,"./utils":9,"./vertice":10}],6:[function(require,module,exports){
+},{"../controllers/constants":1,"./comparators":3,"./grid":4,"./hashMap":5,"./priorityQueue":7,"./queue":8,"./stack":9,"./utils":10,"./vertice":11}],7:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 exports.PriorityQueue = void 0;
@@ -864,10 +894,11 @@ var PriorityQueue = /** @class */ (function () {
 }());
 exports.PriorityQueue = PriorityQueue;
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 exports.Queue = void 0;
+// A wrapper around the default list to implement the collection interface
 var Queue = /** @class */ (function () {
     function Queue() {
         this.queue = [];
@@ -885,10 +916,11 @@ var Queue = /** @class */ (function () {
 }());
 exports.Queue = Queue;
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 exports.Stack = void 0;
+// A wrapper around the default list to implement the collection interface
 var Stack = /** @class */ (function () {
     function Stack() {
         this.stack = [];
@@ -906,28 +938,29 @@ var Stack = /** @class */ (function () {
 }());
 exports.Stack = Stack;
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 exports.randomIntBetween = exports.generateGrid = void 0;
-var controller_1 = require("../controllers/controller");
+var constants_1 = require("../controllers/constants");
 function generateGrid(input) {
     var grid = [];
-    for (var row = 0; row < controller_1.HEIGHT; row++) {
+    for (var row = 0; row < constants_1.HEIGHT; row++) {
         grid.push([]);
-        for (var col = 0; col < controller_1.WIDTH; col++) {
+        for (var col = 0; col < constants_1.WIDTH; col++) {
             grid[row].push(input);
         }
     }
     return grid;
 }
 exports.generateGrid = generateGrid;
+// Generate a random integer between lower (inclusive) and upper (not inclusive)
 function randomIntBetween(lower, upper) {
     return Math.floor(Math.random() * (upper - lower)) + lower;
 }
 exports.randomIntBetween = randomIntBetween;
 
-},{"../controllers/controller":1}],10:[function(require,module,exports){
+},{"../controllers/constants":1}],11:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 exports.Vertice = void 0;
@@ -949,7 +982,7 @@ var Vertice = /** @class */ (function () {
 }());
 exports.Vertice = Vertice;
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -988,8 +1021,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.removeWeightInDOM = exports.renderWeightInDOM = exports.renderFrontierInDOM = exports.renderBlankTileInDOM = exports.renderWallTileInDOM = exports.renderSearchingTileInDOM = exports.renderFinalPathTileInDOM = exports.initView = void 0;
-var controller_1 = require("../controllers/controller");
+exports.removeWeightFromTileInDOM = exports.renderWeightOnTileInDOM = exports.renderFrontierInDOM = exports.renderBlankTileInDOM = exports.renderWallTileInDOM = exports.renderSearchingTileInDOM = exports.renderPathTileInDOM = exports.initView = void 0;
+var constants_1 = require("../controllers/constants");
 var viewUtils_1 = require("./viewUtils");
 var BACKGROUND_COLOR = "rgb(255, 255, 255)";
 var FINAL_PATH_COLOR = "rgb(245, 209, 66)";
@@ -998,8 +1031,9 @@ var START_COLOR = "rgb(255, 80, 80)";
 var GOAL_COLOR = "rgb(235, 145, 9)";
 var WALL_COLOR = "rgb(128,128,128)";
 var FRONTIER_COLOR = "rgb(115, 240, 161)";
-var HEIGHT_PIXELS = 500;
-var WIDTH_PIXELS = 1000;
+var HEIGHT_PIXELS = window.innerHeight * 0.7;
+var WIDTH_PIXELS = HEIGHT_PIXELS * 2;
+// Map an algorithm onto its description
 var algoDescriptions = new Map([
     ["best-first-search", "Best first search is entirely heuristic based, so is unweighted and doesn't guarantee the shortest path"],
     ["a-star", "A* combines heuristics and lowest weight path, so guarantees the shortest path if we use a proper heuristic"],
@@ -1012,28 +1046,32 @@ var algoDescriptions = new Map([
     ["bidirectional-dijkstra", "Bidirectional Dijkstra's runs from both directions, so is weighted and guarantees the shortest path"],
     ["bidirectional-a-star", "Bidirectional A* is weighted and guarantees the shortest path if we use a proper heuristic"]
 ]);
+// Amount of time we wait when animating (lower value means faster animations)
+var DELAY = 30;
+// True if user is holding their mouse down, otherwise false
 var isMouseDown;
-var delayTime;
+// Send controller a message to execute some effect
 var notifyController;
+// When user is dragging a tile, will hold a reference to the element that is being dragged
 var draggedFrom;
 function initView(notif) {
     notifyController = notif;
     isMouseDown = false;
-    delayTime = 30;
-    viewUtils_1.initGridInDOM("#grid", controller_1.HEIGHT, controller_1.WIDTH, HEIGHT_PIXELS, WIDTH_PIXELS, BACKGROUND_COLOR);
+    viewUtils_1.initGenericGridInDOM("#grid", constants_1.HEIGHT, constants_1.WIDTH, HEIGHT_PIXELS, WIDTH_PIXELS, BACKGROUND_COLOR);
     initEventListeners();
     renderStartTileInDOM(1, 1);
     notifyController(1 /* SetStart */, [1, 1]);
-    renderGoalTileInDOM(controller_1.HEIGHT - 2, controller_1.WIDTH - 2);
-    notifyController(2 /* SetGoal */, [controller_1.HEIGHT - 2, controller_1.WIDTH - 2]);
+    renderGoalTileInDOM(constants_1.HEIGHT - 2, constants_1.WIDTH - 2);
+    notifyController(2 /* SetGoal */, [constants_1.HEIGHT - 2, constants_1.WIDTH - 2]);
 }
 exports.initView = initView;
-function renderFinalPathTileInDOM(_a) {
+// Change the colour of the tile at coord to correspond to the path colour
+function renderPathTileInDOM(_a) {
     var row = _a[0], col = _a[1];
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_b) {
             switch (_b.label) {
-                case 0: return [4 /*yield*/, viewUtils_1.wait(delayTime)];
+                case 0: return [4 /*yield*/, viewUtils_1.wait(DELAY)];
                 case 1:
                     _b.sent();
                     renderTileGeneric(row, col, FINAL_PATH_COLOR);
@@ -1042,13 +1080,14 @@ function renderFinalPathTileInDOM(_a) {
         });
     });
 }
-exports.renderFinalPathTileInDOM = renderFinalPathTileInDOM;
+exports.renderPathTileInDOM = renderPathTileInDOM;
+// Change the colour of the tile at coord to correspond to the searching colour
 function renderSearchingTileInDOM(_a) {
     var row = _a[0], col = _a[1];
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_b) {
             switch (_b.label) {
-                case 0: return [4 /*yield*/, viewUtils_1.wait(delayTime)];
+                case 0: return [4 /*yield*/, viewUtils_1.wait(DELAY)];
                 case 1:
                     _b.sent();
                     renderTileGeneric(row, col, SEARCHING_COLOR);
@@ -1058,16 +1097,19 @@ function renderSearchingTileInDOM(_a) {
     });
 }
 exports.renderSearchingTileInDOM = renderSearchingTileInDOM;
+// Change the colour of the tile at coord to correspond to the wall colour
 function renderWallTileInDOM(_a) {
     var row = _a[0], col = _a[1];
     renderTileGeneric(row, col, WALL_COLOR);
 }
 exports.renderWallTileInDOM = renderWallTileInDOM;
+// Change the colour of the tile at coord to correspond to the default colour
 function renderBlankTileInDOM(_a) {
     var row = _a[0], col = _a[1];
     renderTileGeneric(row, col, BACKGROUND_COLOR);
 }
 exports.renderBlankTileInDOM = renderBlankTileInDOM;
+// Change the colour of the tile at coord to correspond to the frontier colour
 function renderFrontierInDOM(_a) {
     var row = _a[0], col = _a[1];
     return __awaiter(this, void 0, void 0, function () {
@@ -1075,7 +1117,7 @@ function renderFrontierInDOM(_a) {
             switch (_b.label) {
                 case 0:
                     if (!!isSearching(viewUtils_1.getTileInDOM(row, col))) return [3 /*break*/, 2];
-                    return [4 /*yield*/, viewUtils_1.wait(delayTime)];
+                    return [4 /*yield*/, viewUtils_1.wait(DELAY)];
                 case 1:
                     _b.sent();
                     renderTileGeneric(row, col, FRONTIER_COLOR);
@@ -1086,7 +1128,8 @@ function renderFrontierInDOM(_a) {
     });
 }
 exports.renderFrontierInDOM = renderFrontierInDOM;
-function renderWeightInDOM(_a) {
+// Display a weight value on a tile
+function renderWeightOnTileInDOM(_a) {
     var row = _a[0], col = _a[1], weight = _a[2];
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_b) {
@@ -1095,8 +1138,9 @@ function renderWeightInDOM(_a) {
         });
     });
 }
-exports.renderWeightInDOM = renderWeightInDOM;
-function removeWeightInDOM(_a) {
+exports.renderWeightOnTileInDOM = renderWeightOnTileInDOM;
+// Clear a weight value from a tile
+function removeWeightFromTileInDOM(_a) {
     var row = _a[0], col = _a[1];
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_b) {
@@ -1105,13 +1149,16 @@ function removeWeightInDOM(_a) {
         });
     });
 }
-exports.removeWeightInDOM = removeWeightInDOM;
+exports.removeWeightFromTileInDOM = removeWeightFromTileInDOM;
+// Change the colour of the tile at coord to correspond to the start colour
 function renderStartTileInDOM(row, col) {
     renderTileGeneric(row, col, START_COLOR);
 }
+// Change the colour of the tile at coord to correspond to the goal colour
 function renderGoalTileInDOM(row, col) {
     renderTileGeneric(row, col, GOAL_COLOR);
 }
+// Generic function for rendering some colour on a tile
 function renderTileGeneric(row, col, color) {
     var tile = viewUtils_1.getTileInDOM(row, col);
     if (!isStart(tile) && !isGoal(tile)) {
@@ -1129,30 +1176,35 @@ function initMenuEventListeners() {
     viewUtils_1.getDOMElem("#reset-walls").addEventListener("click", function () { return notifyController(4 /* ResetBlocks */, null); });
     viewUtils_1.getDOMElem("#reset-path").addEventListener("click", resetPath);
     viewUtils_1.getDOMElem("#wall-pattern").addEventListener("change", generateWallPattern);
-    viewUtils_1.getDOMElem("#block-type").addEventListener("change", handleBlockTypeChange);
-    viewUtils_1.getDOMElem("#select-algo").addEventListener("change", handleAlgoDescriptionUpdate);
+    viewUtils_1.getDOMElem("#block-type").addEventListener("change", updateWallType);
+    viewUtils_1.getDOMElem("#select-algo").addEventListener("change", updateAlgoDescription);
 }
-function handleAlgoDescriptionUpdate(event) {
+// When user selects a new algorithm, change description to that algorithm
+function updateAlgoDescription(event) {
     var descriptionDOM = viewUtils_1.getDOMElem("#description");
     var algoStr = event.target.value;
     descriptionDOM.innerHTML = algoDescriptions.get(algoStr);
 }
-function handleBlockTypeChange(event) {
-    notifyController(6 /* SetBlockType */, event.target.value);
+// When user selects a new wall type, notify the controller with the new type
+function updateWallType(event) {
+    notifyController(6 /* SetWallType */, event.target.value);
 }
+// Tell the controller to generate whichever type of maze user has selected
 function generateWallPattern(event) {
     if (!event.target.disabled) {
         notifyController(5 /* GenerateMaze */, event.target.value);
     }
 }
+// Tell the controller to run whichever algorithm the user has selected
 function runAlgo() {
     var algo = viewUtils_1.getDOMElem("#select-algo");
     resetPath();
     notifyController(3 /* RunAlgo */, algo.value);
 }
+// Clear all the colours from the last algorithm run
 function resetPath() {
-    for (var row = 0; row < controller_1.HEIGHT; row++) {
-        for (var col = 0; col < controller_1.WIDTH; col++) {
+    for (var row = 0; row < constants_1.HEIGHT; row++) {
+        for (var col = 0; col < constants_1.WIDTH; col++) {
             var tile = viewUtils_1.getTileInDOM(row, col);
             if (isSearching(tile) || isPath(tile) || isFrontier(tile)) {
                 renderBlankTileInDOM([row, col]);
@@ -1170,9 +1222,10 @@ function initMouseDetectionEventListeners() {
     document.addEventListener("mousedown", function () { return isMouseDown = true; });
     document.addEventListener("mouseup", function () { return isMouseDown = false; });
 }
+// For each tile in grid, initialise all the event listeners needed
 function initEventListenersForGrid() {
-    for (var row = 0; row < controller_1.HEIGHT; row++) {
-        for (var col = 0; col < controller_1.WIDTH; col++) {
+    for (var row = 0; row < constants_1.HEIGHT; row++) {
+        for (var col = 0; col < constants_1.WIDTH; col++) {
             addTileMouseOverEventListener(row, col);
             addTileMouseDownEventListener(row, col);
             addTileDragEventListener(row, col);
@@ -1210,11 +1263,14 @@ function addTileDropEventListener(dropRow, dropCol) {
         }
     });
 }
+// Tell controller to activate a tile if user has their mouse on it (allows user to click on tiles)
 function addTileMouseDownEventListener(row, col) {
     viewUtils_1.getTileInDOM(row, col).addEventListener("mousedown", function () {
         notifyController(0 /* ActivateTile */, [row, col]);
     });
 }
+// Tell controller to activate a tile if user has their mouse over it and mouse is currently down
+// This allows user to drag their mouse along the grid and smoothly draw tiles
 function addTileMouseOverEventListener(row, col) {
     viewUtils_1.getTileInDOM(row, col).addEventListener("mouseover", function () {
         if (isMouseDown) {
@@ -1241,10 +1297,10 @@ function isFrontier(tile) {
     return viewUtils_1.isColor(tile, FRONTIER_COLOR);
 }
 
-},{"../controllers/controller":1,"./viewUtils":12}],12:[function(require,module,exports){
+},{"../controllers/constants":1,"./viewUtils":13}],13:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
-exports.swapTileColors = exports.isColor = exports.wait = exports.getTileInDOM = exports.initGridInDOM = exports.getDOMElem = void 0;
+exports.swapTileColors = exports.isColor = exports.wait = exports.getTileInDOM = exports.initGenericGridInDOM = exports.getDOMElem = void 0;
 function getDOMElem(selector) {
     var elemDOM = document.querySelector(selector);
     if (elemDOM === null) {
@@ -1255,13 +1311,13 @@ function getDOMElem(selector) {
     }
 }
 exports.getDOMElem = getDOMElem;
-function initGridInDOM(selector, height, width, heightPixels, widthPixels, tileColor) {
+function initGenericGridInDOM(selector, height, width, heightPixels, widthPixels, tileColor) {
     var elemDOM = getDOMElem(selector);
     for (var row = 0; row < height; row++) {
         elemDOM.append(createEmptyRowInDOM(height, width, heightPixels, widthPixels, tileColor));
     }
 }
-exports.initGridInDOM = initGridInDOM;
+exports.initGenericGridInDOM = initGenericGridInDOM;
 // Given a row and a column, return the tile indexed in the main grid
 function getTileInDOM(row, col) {
     var gridDOM = getDOMElem("#grid");
@@ -1322,4 +1378,4 @@ function tileDOMAt(rowDOM, col) {
     return rowDOM.cells[col];
 }
 
-},{}]},{},[6,1,5,4,3,11]);
+},{}]},{},[1,10,7,2,6,5,4,12]);

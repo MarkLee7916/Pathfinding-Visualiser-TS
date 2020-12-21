@@ -1,6 +1,7 @@
-import { Coord, HEIGHT, WIDTH } from "../controllers/controller";
-import { getDOMElem, getTileInDOM, initGridInDOM, isColor, swapTileColors, wait } from "./viewUtils";
+import { Coord, HEIGHT, WIDTH } from "../controllers/constants";
+import { getDOMElem, getTileInDOM, initGenericGridInDOM, isColor, swapTileColors, wait } from "./viewUtils";
 
+// Protocol we use to talk to the controller
 export const enum ViewMessages {
     ActivateTile,
     SetStart,
@@ -8,7 +9,7 @@ export const enum ViewMessages {
     RunAlgo,
     ResetBlocks,
     GenerateMaze,
-    SetBlockType
+    SetWallType
 }
 
 const BACKGROUND_COLOR = "rgb(255, 255, 255)";
@@ -18,9 +19,10 @@ const START_COLOR = "rgb(255, 80, 80)";
 const GOAL_COLOR = "rgb(235, 145, 9)";
 const WALL_COLOR = "rgb(128,128,128)";
 const FRONTIER_COLOR = "rgb(115, 240, 161)";
-const HEIGHT_PIXELS = 500;
-const WIDTH_PIXELS = 1000;
+const HEIGHT_PIXELS = window.innerHeight * 0.7;
+const WIDTH_PIXELS = HEIGHT_PIXELS * 2;
 
+// Map an algorithm onto its description
 const algoDescriptions = new Map([
     ["best-first-search", "Best first search is entirely heuristic based, so is unweighted and doesn't guarantee the shortest path"],
     ["a-star", "A* combines heuristics and lowest weight path, so guarantees the shortest path if we use a proper heuristic"],
@@ -34,17 +36,23 @@ const algoDescriptions = new Map([
     ["bidirectional-a-star", "Bidirectional A* is weighted and guarantees the shortest path if we use a proper heuristic"]
 ]);
 
+// Amount of time we wait when animating (lower value means faster animations)
+const DELAY = 30;
+ 
+// True if user is holding their mouse down, otherwise false
 let isMouseDown: boolean;
-let delayTime: number;
+
+// Send controller a message to execute some effect
 let notifyController: (message: ViewMessages, arg: any) => void;
+
+// When user is dragging a tile, will hold a reference to the element that is being dragged
 let draggedFrom: HTMLTableCellElement;
 
 export function initView(notif: (message: ViewMessages, arg: any) => void) {
     notifyController = notif;
     isMouseDown = false;
-    delayTime = 30;
 
-    initGridInDOM("#grid", HEIGHT, WIDTH, HEIGHT_PIXELS, WIDTH_PIXELS, BACKGROUND_COLOR);
+    initGenericGridInDOM("#grid", HEIGHT, WIDTH, HEIGHT_PIXELS, WIDTH_PIXELS, BACKGROUND_COLOR);
     initEventListeners();
 
     renderStartTileInDOM(1, 1);
@@ -54,50 +62,60 @@ export function initView(notif: (message: ViewMessages, arg: any) => void) {
     notifyController(ViewMessages.SetGoal, [HEIGHT - 2, WIDTH - 2]);
 }
 
-export async function renderFinalPathTileInDOM([row, col]: Coord) {
-    await wait(delayTime);
+// Change the colour of the tile at coord to correspond to the path colour
+export async function renderPathTileInDOM([row, col]: Coord) {
+    await wait(DELAY);
 
     renderTileGeneric(row, col, FINAL_PATH_COLOR);
 }
 
+// Change the colour of the tile at coord to correspond to the searching colour
 export async function renderSearchingTileInDOM([row, col]: Coord) {
-    await wait(delayTime);
+    await wait(DELAY);
 
     renderTileGeneric(row, col, SEARCHING_COLOR);
 }
 
+// Change the colour of the tile at coord to correspond to the wall colour
 export function renderWallTileInDOM([row, col]: Coord) {
     renderTileGeneric(row, col, WALL_COLOR);
 }
 
+// Change the colour of the tile at coord to correspond to the default colour
 export function renderBlankTileInDOM([row, col]: Coord) {
     renderTileGeneric(row, col, BACKGROUND_COLOR);
 }
 
+// Change the colour of the tile at coord to correspond to the frontier colour
 export async function renderFrontierInDOM([row, col]: Coord) {
     if (!isSearching(getTileInDOM(row, col))) {
-        await wait(delayTime);
+        await wait(DELAY);
 
         renderTileGeneric(row, col, FRONTIER_COLOR);
     }
 }
 
-export async function renderWeightInDOM([row, col, weight]: [number, number, number]) {
+// Display a weight value on a tile
+export async function renderWeightOnTileInDOM([row, col, weight]: [number, number, number]) {
     getTileInDOM(row, col).innerHTML = weight.toString();
 }
 
-export async function removeWeightInDOM([row, col]: Coord) {
+// Clear a weight value from a tile
+export async function removeWeightFromTileInDOM([row, col]: Coord) {
     getTileInDOM(row, col).innerHTML = "";
 }
 
+// Change the colour of the tile at coord to correspond to the start colour
 function renderStartTileInDOM(row: number, col: number) {
     renderTileGeneric(row, col, START_COLOR);
 }
 
+// Change the colour of the tile at coord to correspond to the goal colour
 function renderGoalTileInDOM(row: number, col: number) {
     renderTileGeneric(row, col, GOAL_COLOR);
 }
 
+// Generic function for rendering some colour on a tile
 function renderTileGeneric(row: number, col: number, color: string) {
     const tile = getTileInDOM(row, col);
 
@@ -118,27 +136,31 @@ function initMenuEventListeners() {
     getDOMElem("#reset-walls").addEventListener("click", () => notifyController(ViewMessages.ResetBlocks, null));
     getDOMElem("#reset-path").addEventListener("click", resetPath);
     getDOMElem("#wall-pattern").addEventListener("change", generateWallPattern);
-    getDOMElem("#block-type").addEventListener("change", handleBlockTypeChange);
-    getDOMElem("#select-algo").addEventListener("change", handleAlgoDescriptionUpdate)
+    getDOMElem("#block-type").addEventListener("change", updateWallType);
+    getDOMElem("#select-algo").addEventListener("change", updateAlgoDescription)
 }
 
-function handleAlgoDescriptionUpdate(event) {
+// When user selects a new algorithm, change description to that algorithm
+function updateAlgoDescription(event) {
     const descriptionDOM = getDOMElem("#description");
     const algoStr = event.target.value;
 
     descriptionDOM.innerHTML = algoDescriptions.get(algoStr);
 }
 
-function handleBlockTypeChange(event) {
-    notifyController(ViewMessages.SetBlockType, event.target.value);
+// When user selects a new wall type, notify the controller with the new type
+function updateWallType(event) {
+    notifyController(ViewMessages.SetWallType, event.target.value);
 }
 
+// Tell the controller to generate whichever type of maze user has selected
 function generateWallPattern(event) {
     if (!event.target.disabled) {
         notifyController(ViewMessages.GenerateMaze, event.target.value);
     }
 }
 
+// Tell the controller to run whichever algorithm the user has selected
 function runAlgo() {
     const algo = <HTMLSelectElement> getDOMElem("#select-algo");
 
@@ -146,6 +168,7 @@ function runAlgo() {
     notifyController(ViewMessages.RunAlgo, algo.value);
 }
 
+// Clear all the colours from the last algorithm run
 function resetPath() {
     for (let row = 0; row < HEIGHT; row++) {
         for (let col = 0; col < WIDTH; col++) {
@@ -170,6 +193,7 @@ function initMouseDetectionEventListeners() {
     document.addEventListener("mouseup", () => isMouseDown = false);
 }
 
+// For each tile in grid, initialise all the event listeners needed
 function initEventListenersForGrid() {
     for (let row = 0; row < HEIGHT; row++) {
         for (let col = 0; col < WIDTH; col++) {
@@ -212,12 +236,15 @@ function addTileDropEventListener(dropRow: number, dropCol: number) {
     });
 }
 
+// Tell controller to activate a tile if user has their mouse on it (allows user to click on tiles)
 function addTileMouseDownEventListener(row: number, col: number) {
     getTileInDOM(row, col).addEventListener("mousedown", () => {
         notifyController(ViewMessages.ActivateTile, [row, col]);
     });
 }
 
+// Tell controller to activate a tile if user has their mouse over it and mouse is currently down
+// This allows user to drag their mouse along the grid and smoothly draw tiles
 function addTileMouseOverEventListener(row: number, col: number) {
     getTileInDOM(row, col).addEventListener("mouseover", () => {
         if (isMouseDown) {

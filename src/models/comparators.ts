@@ -1,4 +1,4 @@
-import { Coord } from "../controllers/controller";
+import { Coord } from "../controllers/constants";
 import { Node } from "./pathfinding"
 
 // Return a comparator that implements a heuristic that is biased in favour of nodes near the goal node
@@ -11,6 +11,7 @@ export function generateGoalDistComparator([goalRow, goalCol]: Coord) {
     }
 }
 
+// Return a comparator that combines a goal based heuristic with a lowest weights heuristic
 export function generateAStarComparator(goal: Coord) {
     return (node1: Node, node2: Node) => {
         const dijkstraHeuristic = generateDijkstraComparator()(node1, node2);
@@ -20,6 +21,7 @@ export function generateAStarComparator(goal: Coord) {
     }
 }
 
+// Return a comparator that implements a heuristic that is biased in favour of the lowest weight nodes
 export function generateDijkstraComparator() {
     return (node1: Node, node2: Node) => node2.dist() - node1.dist();
 }
