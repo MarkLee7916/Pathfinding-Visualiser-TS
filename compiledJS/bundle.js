@@ -2,8 +2,9 @@
 "use strict";
 exports.__esModule = true;
 exports.WIDTH = exports.HEIGHT = void 0;
-exports.HEIGHT = 20;
-exports.WIDTH = 40;
+var isWidescreen = window.matchMedia("(min-width: 600px)");
+exports.HEIGHT = isWidescreen ? 20 : 40;
+exports.WIDTH = isWidescreen ? 40 : 20;
 
 },{}],2:[function(require,module,exports){
 "use strict";
