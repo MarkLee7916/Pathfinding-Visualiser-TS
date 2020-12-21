@@ -19,8 +19,9 @@ const START_COLOR = "rgb(255, 80, 80)";
 const GOAL_COLOR = "rgb(235, 145, 9)";
 const WALL_COLOR = "rgb(128,128,128)";
 const FRONTIER_COLOR = "rgb(115, 240, 161)";
+
 const HEIGHT_PIXELS = window.innerHeight * 0.7;
-const WIDTH_PIXELS = HEIGHT_PIXELS * 2;
+const WIDTH_PIXELS = HEIGHT_PIXELS * (WIDTH / HEIGHT);
 
 // Map an algorithm onto its description
 const algoDescriptions = new Map([

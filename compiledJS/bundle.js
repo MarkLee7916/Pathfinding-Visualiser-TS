@@ -2,9 +2,9 @@
 "use strict";
 exports.__esModule = true;
 exports.WIDTH = exports.HEIGHT = void 0;
-var isWidescreen = window.matchMedia("(min-width: 600px)");
-exports.HEIGHT = isWidescreen ? 20 : 40;
-exports.WIDTH = isWidescreen ? 40 : 20;
+var isWidescreen = window.matchMedia("(min-width: 992px)");
+exports.HEIGHT = isWidescreen.matches ? 20 : 40;
+exports.WIDTH = isWidescreen.matches ? 40 : 20;
 
 },{}],2:[function(require,module,exports){
 "use strict";
@@ -1033,7 +1033,7 @@ var GOAL_COLOR = "rgb(235, 145, 9)";
 var WALL_COLOR = "rgb(128,128,128)";
 var FRONTIER_COLOR = "rgb(115, 240, 161)";
 var HEIGHT_PIXELS = window.innerHeight * 0.7;
-var WIDTH_PIXELS = HEIGHT_PIXELS * 2;
+var WIDTH_PIXELS = HEIGHT_PIXELS * (constants_1.WIDTH / constants_1.HEIGHT);
 // Map an algorithm onto its description
 var algoDescriptions = new Map([
     ["best-first-search", "Best first search is entirely heuristic based, so is unweighted and doesn't guarantee the shortest path"],
