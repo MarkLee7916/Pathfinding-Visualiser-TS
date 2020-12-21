@@ -7,8 +7,8 @@ export class Vertice<T> {
         this.data = data;
     }
 
-    public updateDist(newVal: number) {
-        this.distance = newVal;
+    public updateDist(newDist: number) {
+        this.distance = newDist;
     }
 
     public dist() {

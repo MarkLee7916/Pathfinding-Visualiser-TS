@@ -1,6 +1,6 @@
 import { bestFirstSearch, breadthFirstSearch, depthFirstSearch, initPathfinding, ModelMessages, resetWalls, setGoal, setStart, randomMaze, AStar, Dijkstra, setBlockTypeToWall, setBlockTypeToWeight, bidirectionalDFS, bidirectionalBFS, bidirectionalBestFirstSearch, bidirectionalDijkstra, bidirectionalAStar, toggleTile, divideHorizontal, divideVertical } from "../models/pathfinding";
 import { initView, removeWeightFromTileInDOM, renderBlankTileInDOM, renderPathTileInDOM, renderFrontierInDOM, renderSearchingTileInDOM, renderWallTileInDOM, renderWeightOnTileInDOM, ViewMessages } from "../views/view";
-    
+
 // Map an HTML value representation of a pathfinding algorithm to an actual implementation
 const algoStrToFunction = new Map<string, () => void>([
     ["best-first-search", bestFirstSearch],
@@ -74,4 +74,6 @@ async function readMessageFromModel(message: ModelMessages, content: any) {
     initView(readMessageFromView);
     initPathfinding(readMessageFromModel);
 })();
+
+console.log("a")
 

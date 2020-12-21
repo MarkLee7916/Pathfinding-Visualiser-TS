@@ -151,6 +151,7 @@ function readMessageFromModel(message, content) {
     view_1.initView(readMessageFromView);
     pathfinding_1.initPathfinding(readMessageFromModel);
 })();
+console.log("a");
 
 },{"../models/pathfinding":6,"../views/view":12}],3:[function(require,module,exports){
 "use strict";
@@ -317,14 +318,13 @@ var notifyController;
 var start;
 // Coordinate of the goal tile
 var goal;
-// The function for placing either a weight or wall
 // Allows us to generically place either a weight or a wall
 var tilePlacementFunc = toggleWall;
 function initPathfinding(notif) {
     notifyController = notif;
 }
 exports.initPathfinding = initPathfinding;
-// Wrapper around tilePlacementFunc to avoid having to expose reassignable state
+// Wrapper around tilePlacementFunc to avoid having to expose mutable state
 function toggleTile(coord) {
     tilePlacementFunc(coord);
 }
@@ -970,8 +970,8 @@ var Vertice = /** @class */ (function () {
         this.distance = Infinity;
         this.data = data;
     }
-    Vertice.prototype.updateDist = function (newVal) {
-        this.distance = newVal;
+    Vertice.prototype.updateDist = function (newDist) {
+        this.distance = newDist;
     };
     Vertice.prototype.dist = function () {
         return this.distance;

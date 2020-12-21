@@ -38,7 +38,6 @@ let start: Coord;
 // Coordinate of the goal tile
 let goal: Coord;
 
-// The function for placing either a weight or wall
 // Allows us to generically place either a weight or a wall
 let tilePlacementFunc = toggleWall;
 
@@ -46,7 +45,7 @@ export function initPathfinding(notif: (message: ModelMessages, content: any) =>
     notifyController = notif;
 }
 
-// Wrapper around tilePlacementFunc to avoid having to expose reassignable state
+// Wrapper around tilePlacementFunc to avoid having to expose mutable state
 export function toggleTile(coord: Coord) {
     tilePlacementFunc(coord);
 }
