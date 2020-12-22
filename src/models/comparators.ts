@@ -25,3 +25,7 @@ export function generateAStarComparator(goal: Coord) {
 export function generateDijkstraComparator() {
     return (node1: Node, node2: Node) => node2.dist() - node1.dist();
 }
+
+export function generateRandomComparator() {
+    return (x: Node, y: Node) => Math.random() - 0.6;
+}

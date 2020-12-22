@@ -7,7 +7,7 @@ import { Collection } from "./collection";
 import { Coord, HEIGHT, WIDTH } from "../controllers/constants";
 import { Vertice } from "./vertice";
 import { generateGrid, randomIntBetween } from "./utils";
-import { generateAStarComparator, generateDijkstraComparator, generateGoalDistComparator } from "./comparators";
+import { generateAStarComparator as generateAstarComparator, generateDijkstraComparator, generateGoalDistComparator, generateRandomComparator } from "./comparators";
 
 type Weights = number[][];
 export type Node = Vertice<Coord>;
@@ -120,16 +120,23 @@ export async function bestFirstSearch() {
     await genericUnidirectionalSearch(priorityQueue, weights);
 }
 
-export async function AStar() {
-    const gridComparator = generateAStarComparator(goal);
+export async function astar() {
+    const gridComparator = generateAstarComparator(goal);
     const priorityQueue = new PriorityQueue<Node>(gridComparator);
 
     await genericUnidirectionalSearch(priorityQueue, weights);
 }
 
-export async function Dijkstra() {
+export async function dijkstra() {
     const gridComparator = generateDijkstraComparator();
     const priorityQueue = new PriorityQueue<Node>(gridComparator);
+
+    await genericUnidirectionalSearch(priorityQueue, weights);
+}
+
+export async function randomSearch() {
+    const randomComparator = generateRandomComparator();
+    const priorityQueue = new PriorityQueue<Node>(randomComparator);
 
     await genericUnidirectionalSearch(priorityQueue, weights);
 }
@@ -183,9 +190,17 @@ export async function bidirectionalDijkstra() {
     await genericBidirectionalSearch(forwardPriorityQueue, backwardPriorityQueue, weights);
 }
 
-export async function bidirectionalAStar() {
-    const forwardsComparator = generateAStarComparator(goal);
-    const backwardsComparator = generateAStarComparator(start);
+export async function bidirectionalRandomSearch() {
+    const randomComparator = generateRandomComparator();
+    const forwardPriorityQueue = new PriorityQueue<Node>(randomComparator);
+    const backwardPriorityQueue = new PriorityQueue<Node>(randomComparator);
+
+    await genericBidirectionalSearch(forwardPriorityQueue, backwardPriorityQueue, weights);
+}
+
+export async function bidirectionalAstar() {
+    const forwardsComparator = generateAstarComparator(goal);
+    const backwardsComparator = generateAstarComparator(start);
 
     const forwardPriorityQueue = new PriorityQueue<Node>(forwardsComparator);
     const backwardPriorityQueue = new PriorityQueue<Node>(backwardsComparator);
@@ -343,7 +358,7 @@ async function considerNextNode(path: HashMap<Coord, Coord>, visited: Grid, node
 
 // Fill some tiles in a row while leaving others
 function fillRowRandomly(row: number) {
-    const randomComparator = (x: number, y: number) => Math.random() - 0.5;
+    const randomComparator = (x, y) => Math.random() - 0.5;
     const priorityQueue = new PriorityQueue<number>(randomComparator);
     const density = 4;
 

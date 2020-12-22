@@ -1,4 +1,4 @@
-import { bestFirstSearch, breadthFirstSearch, depthFirstSearch, initPathfinding, ModelMessages, resetWalls, setGoal, setStart, randomMaze, AStar, Dijkstra, setBlockTypeToWall, setBlockTypeToWeight, bidirectionalDFS, bidirectionalBFS, bidirectionalBestFirstSearch, bidirectionalDijkstra, bidirectionalAStar, toggleTile, divideHorizontal, divideVertical } from "../models/pathfinding";
+import { bestFirstSearch, breadthFirstSearch, depthFirstSearch, initPathfinding, ModelMessages, resetWalls, setGoal, setStart, randomMaze, astar, dijkstra, setBlockTypeToWall, setBlockTypeToWeight, bidirectionalDFS, bidirectionalBFS, bidirectionalBestFirstSearch, bidirectionalDijkstra, bidirectionalAstar, toggleTile, divideHorizontal, divideVertical, bidirectionalRandomSearch, randomSearch } from "../models/pathfinding";
 import { initView, removeWeightFromTileInDOM, renderBlankTileInDOM, renderPathTileInDOM, renderFrontierInDOM, renderSearchingTileInDOM, renderWallTileInDOM, renderWeightOnTileInDOM, ViewMessages } from "../views/view";
 
 // Map an HTML value representation of a pathfinding algorithm to an actual implementation
@@ -6,13 +6,15 @@ const algoStrToFunction = new Map<string, () => void>([
     ["best-first-search", bestFirstSearch],
     ["breadth-first-search", breadthFirstSearch],
     ["depth-first-search", depthFirstSearch],
-    ["a-star", AStar],
-    ["dijkstra", Dijkstra],
+    ["a-star", astar],
+    ["dijkstra", dijkstra],
     ["bidirectional-DFS", bidirectionalDFS],
     ["bidirectional-BFS", bidirectionalBFS],
     ["bidirectional-GBFS", bidirectionalBestFirstSearch],
     ["bidirectional-dijkstra", bidirectionalDijkstra],
-    ["bidirectional-a-star", bidirectionalAStar]
+    ["bidirectional-a-star", bidirectionalAstar],
+    ["bidirectional-random", bidirectionalRandomSearch],
+    ["random", randomSearch]
 ]);
 
 // Map an HTML value representation of a wall type to a function that sets it to that wall type
@@ -75,5 +77,4 @@ async function readMessageFromModel(message: ModelMessages, content: any) {
     initPathfinding(readMessageFromModel);
 })();
 
-console.log("a")
 

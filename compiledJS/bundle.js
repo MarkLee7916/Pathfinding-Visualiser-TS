@@ -52,13 +52,15 @@ var algoStrToFunction = new Map([
     ["best-first-search", pathfinding_1.bestFirstSearch],
     ["breadth-first-search", pathfinding_1.breadthFirstSearch],
     ["depth-first-search", pathfinding_1.depthFirstSearch],
-    ["a-star", pathfinding_1.AStar],
-    ["dijkstra", pathfinding_1.Dijkstra],
+    ["a-star", pathfinding_1.astar],
+    ["dijkstra", pathfinding_1.dijkstra],
     ["bidirectional-DFS", pathfinding_1.bidirectionalDFS],
     ["bidirectional-BFS", pathfinding_1.bidirectionalBFS],
     ["bidirectional-GBFS", pathfinding_1.bidirectionalBestFirstSearch],
     ["bidirectional-dijkstra", pathfinding_1.bidirectionalDijkstra],
-    ["bidirectional-a-star", pathfinding_1.bidirectionalAStar]
+    ["bidirectional-a-star", pathfinding_1.bidirectionalAstar],
+    ["bidirectional-random", pathfinding_1.bidirectionalRandomSearch],
+    ["random", pathfinding_1.randomSearch]
 ]);
 // Map an HTML value representation of a wall type to a function that sets it to that wall type
 var wallTypeStrToFunction = new Map([
@@ -151,12 +153,11 @@ function readMessageFromModel(message, content) {
     view_1.initView(readMessageFromView);
     pathfinding_1.initPathfinding(readMessageFromModel);
 })();
-console.log("a");
 
 },{"../models/pathfinding":6,"../views/view":12}],3:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
-exports.generateDijkstraComparator = exports.generateAStarComparator = exports.generateGoalDistComparator = void 0;
+exports.generateRandomComparator = exports.generateDijkstraComparator = exports.generateAStarComparator = exports.generateGoalDistComparator = void 0;
 // Return a comparator that implements a heuristic that is biased in favour of nodes near the goal node
 function generateGoalDistComparator(_a) {
     var goalRow = _a[0], goalCol = _a[1];
@@ -181,6 +182,10 @@ function generateDijkstraComparator() {
     return function (node1, node2) { return node2.dist() - node1.dist(); };
 }
 exports.generateDijkstraComparator = generateDijkstraComparator;
+function generateRandomComparator() {
+    return function (x, y) { return Math.random() - 0.6; };
+}
+exports.generateRandomComparator = generateRandomComparator;
 
 },{}],4:[function(require,module,exports){
 "use strict";
@@ -298,7 +303,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.divideHorizontal = exports.divideVertical = exports.bidirectionalAStar = exports.bidirectionalDijkstra = exports.bidirectionalBestFirstSearch = exports.bidirectionalBFS = exports.bidirectionalDFS = exports.setBlockTypeToWeight = exports.setBlockTypeToWall = exports.randomMaze = exports.Dijkstra = exports.AStar = exports.bestFirstSearch = exports.breadthFirstSearch = exports.depthFirstSearch = exports.resetWalls = exports.setGoal = exports.setStart = exports.toggleWeight = exports.toggleWall = exports.toggleTile = exports.initPathfinding = void 0;
+exports.divideHorizontal = exports.divideVertical = exports.bidirectionalAstar = exports.bidirectionalRandomSearch = exports.bidirectionalDijkstra = exports.bidirectionalBestFirstSearch = exports.bidirectionalBFS = exports.bidirectionalDFS = exports.setBlockTypeToWeight = exports.setBlockTypeToWall = exports.randomMaze = exports.randomSearch = exports.dijkstra = exports.astar = exports.bestFirstSearch = exports.breadthFirstSearch = exports.depthFirstSearch = exports.resetWalls = exports.setGoal = exports.setStart = exports.toggleWeight = exports.toggleWall = exports.toggleTile = exports.initPathfinding = void 0;
 var grid_1 = require("./grid");
 var hashMap_1 = require("./hashMap");
 var priorityQueue_1 = require("./priorityQueue");
@@ -428,7 +433,7 @@ function bestFirstSearch() {
     });
 }
 exports.bestFirstSearch = bestFirstSearch;
-function AStar() {
+function astar() {
     return __awaiter(this, void 0, void 0, function () {
         var gridComparator, priorityQueue;
         return __generator(this, function (_a) {
@@ -444,8 +449,8 @@ function AStar() {
         });
     });
 }
-exports.AStar = AStar;
-function Dijkstra() {
+exports.astar = astar;
+function dijkstra() {
     return __awaiter(this, void 0, void 0, function () {
         var gridComparator, priorityQueue;
         return __generator(this, function (_a) {
@@ -461,7 +466,24 @@ function Dijkstra() {
         });
     });
 }
-exports.Dijkstra = Dijkstra;
+exports.dijkstra = dijkstra;
+function randomSearch() {
+    return __awaiter(this, void 0, void 0, function () {
+        var randomComparator, priorityQueue;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    randomComparator = comparators_1.generateRandomComparator();
+                    priorityQueue = new priorityQueue_1.PriorityQueue(randomComparator);
+                    return [4 /*yield*/, genericUnidirectionalSearch(priorityQueue, weights)];
+                case 1:
+                    _a.sent();
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+exports.randomSearch = randomSearch;
 // Reset walls and generate a random maze of whatever wall type user has selected
 function randomMaze() {
     resetWalls();
@@ -549,7 +571,25 @@ function bidirectionalDijkstra() {
     });
 }
 exports.bidirectionalDijkstra = bidirectionalDijkstra;
-function bidirectionalAStar() {
+function bidirectionalRandomSearch() {
+    return __awaiter(this, void 0, void 0, function () {
+        var randomComparator, forwardPriorityQueue, backwardPriorityQueue;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    randomComparator = comparators_1.generateRandomComparator();
+                    forwardPriorityQueue = new priorityQueue_1.PriorityQueue(randomComparator);
+                    backwardPriorityQueue = new priorityQueue_1.PriorityQueue(randomComparator);
+                    return [4 /*yield*/, genericBidirectionalSearch(forwardPriorityQueue, backwardPriorityQueue, weights)];
+                case 1:
+                    _a.sent();
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+exports.bidirectionalRandomSearch = bidirectionalRandomSearch;
+function bidirectionalAstar() {
     return __awaiter(this, void 0, void 0, function () {
         var forwardsComparator, backwardsComparator, forwardPriorityQueue, backwardPriorityQueue;
         return __generator(this, function (_a) {
@@ -567,7 +607,7 @@ function bidirectionalAStar() {
         });
     });
 }
-exports.bidirectionalAStar = bidirectionalAStar;
+exports.bidirectionalAstar = bidirectionalAstar;
 // Reset walls and generate a vertical maze of whatever wall type user has selected
 function divideVertical() {
     resetWalls();
@@ -1045,7 +1085,9 @@ var algoDescriptions = new Map([
     ["bidirectional-DFS", "Bidirectional DFS does a DFS from both directions, so is unweighted and doesn't guarantee shortest path"],
     ["bidirectional-GBFS", "Bidirectional GBFS runs from both directions, so is unweighted and doesn't guarantee the shortest path"],
     ["bidirectional-dijkstra", "Bidirectional Dijkstra's runs from both directions, so is weighted and guarantees the shortest path"],
-    ["bidirectional-a-star", "Bidirectional A* is weighted and guarantees the shortest path if we use a proper heuristic"]
+    ["bidirectional-a-star", "Bidirectional A* is weighted and guarantees the shortest path if we use a proper heuristic"],
+    ["random", "Random search searches the grid randomly without any purpose, so is unweighted and guarantees nothing"],
+    ["bidirectional-random", "Random search running concurrently from both the start and goal nodes"]
 ]);
 // Amount of time we wait when animating (lower value means faster animations)
 var DELAY = 30;
