@@ -1221,6 +1221,18 @@ function initMenuEventListeners() {
     viewUtils_1.getDOMElem("#wall-pattern").addEventListener("change", generateWallPattern);
     viewUtils_1.getDOMElem("#block-type").addEventListener("change", updateWallType);
     viewUtils_1.getDOMElem("#select-algo").addEventListener("change", updateAlgoDescription);
+    viewUtils_1.getDOMElemList(".finish-tutorial").forEach(function (elem) { return elem.addEventListener("click", finishTutorial); });
+    viewUtils_1.getDOMElemList(".next-page").forEach(function (elem) { return elem.addEventListener("click", nextPage); });
+}
+function nextPage(event) {
+    var nextPageButton = event.target;
+    nextPageButton.parentNode.style.visibility = "hidden";
+}
+function finishTutorial() {
+    var restOfPageDOM = viewUtils_1.getDOMElem("#page");
+    var tutorialModalDOM = viewUtils_1.getDOMElem("#modal-container");
+    restOfPageDOM.style.opacity = "1";
+    tutorialModalDOM.style.visibility = "hidden";
 }
 // When user selects a new algorithm, change description to that algorithm
 function updateAlgoDescription(event) {
@@ -1343,7 +1355,7 @@ function isFrontier(tile) {
 },{"../controllers/constants":1,"./viewUtils":13}],13:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
-exports.swapTileColors = exports.isColor = exports.wait = exports.getTileInDOM = exports.initGenericGridInDOM = exports.getDOMElem = void 0;
+exports.swapTileColors = exports.isColor = exports.wait = exports.getTileInDOM = exports.initGenericGridInDOM = exports.getDOMElemList = exports.getDOMElem = void 0;
 function getDOMElem(selector) {
     var elemDOM = document.querySelector(selector);
     if (elemDOM === null) {
@@ -1354,6 +1366,16 @@ function getDOMElem(selector) {
     }
 }
 exports.getDOMElem = getDOMElem;
+function getDOMElemList(selector) {
+    var elemsDOM = document.querySelectorAll(selector);
+    if (elemsDOM === null || elemsDOM.length === 0) {
+        throw "Selector " + selector + " wasn't found in index.html";
+    }
+    else {
+        return Array.from(elemsDOM).map(function (elem) { return elem; });
+    }
+}
+exports.getDOMElemList = getDOMElemList;
 function initGenericGridInDOM(selector, height, width, heightPixels, widthPixels, tileColor) {
     var elemDOM = getDOMElem(selector);
     for (var row = 0; row < height; row++) {

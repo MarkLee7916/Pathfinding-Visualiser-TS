@@ -1,79 +1,167 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <title>Pathfinding Visualiser</title>
-        <meta charset="UTF-8"/>
-        <link rel="stylesheet" href="index.css" />
-    </head>
 
-    <body>
-        <div id="page">
-            <header>
-                <nav>
-                    <ul id="menu">
-                        <span class="menu-segment">
-                            <select id="select-algo" class="menu-button">
-                                <option value="a-star">A*</option>
-                                <option value="best-first-search">Greedy Best First Search</option>
-                                <option value="depth-first-search">Depth First Search</option>
-                                <option value="breadth-first-search">Breadth First Search</option>
-                                <option value="dijkstra">Dijkstra's</option>
-                                <option value="random">Random Search</option>
-                                <option value="bidirectional-a-star">Bidirectional A*</option>
-                                <option value="bidirectional-GBFS">Bidirectional GBFS</option>
-                                <option value="bidirectional-DFS">Bidirectional DFS</option>
-                                <option value="bidirectional-BFS">Bidirectional BFS</option>                               
-                                <option value="bidirectional-dijkstra">Bidirectional Dijkstra's</option>
-                                <option value="bidirectional-random">Bidirectional Random</option>                               
-                            </select>
-                        </span>
+<head>
+    <title>Pathfinding Visualiser</title>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="index.css" />
+</head>
 
-                        <span class="menu-segment">
-                            <select id="wall-pattern" class="menu-button">
-                                <option selected disabled value="not-selected">Wall Patterns:</option>
-                                <option value="random-maze">Random Maze</option>
-                                <option value="divide-horizontal">Divide Horizontal</option>
-                                <option value="divide-vertical">Divide Vertical</option>
-                            </select>
-                        </span>
+<body>
+    <div id="page">
+        <header>
+            <nav>
+                <ul id="menu">
+                    <span class="menu-segment">
+                        <select id="select-algo" class="menu-button">
+                            <option value="a-star">A*</option>
+                            <option value="best-first-search">Greedy Best First Search</option>
+                            <option value="depth-first-search">Depth First Search</option>
+                            <option value="breadth-first-search">Breadth First Search</option>
+                            <option value="dijkstra">Dijkstra's</option>
+                            <option value="random">Random Search</option>
+                            <option value="bidirectional-a-star">Bidirectional A*</option>
+                            <option value="bidirectional-GBFS">Bidirectional GBFS</option>
+                            <option value="bidirectional-DFS">Bidirectional DFS</option>
+                            <option value="bidirectional-BFS">Bidirectional BFS</option>
+                            <option value="bidirectional-dijkstra">Bidirectional Dijkstra's</option>
+                            <option value="bidirectional-random">Bidirectional Random</option>
+                        </select>
+                    </span>
 
-                        <span class="menu-segment">
-                            <select id="block-type" class="menu-button">
-                                <option value="wall">Add Walls</option>
-                                <option value="weight">Add Weights</option>
-                            </select>
-                        </span>
+                    <span class="menu-segment">
+                        <select id="wall-pattern" class="menu-button">
+                            <option selected disabled value="not-selected">Wall Patterns:</option>
+                            <option value="random-maze">Random Maze</option>
+                            <option value="divide-horizontal">Divide Horizontal</option>
+                            <option value="divide-vertical">Divide Vertical</option>
+                        </select>
+                    </span>
 
-                        <span class="menu-segment">
-                            <button class="menu-button" id="reset-walls">Reset Walls and Weights</button>
-                        </span>
+                    <span class="menu-segment">
+                        <select id="block-type" class="menu-button">
+                            <option value="wall">Add Walls</option>
+                            <option value="weight">Add Weights</option>
+                        </select>
+                    </span>
 
-                        <span class="menu-segment">
-                            <button class="menu-button" id="reset-path">Reset Path</button>
-                        </span>
+                    <span class="menu-segment">
+                        <button class="menu-button" id="reset-walls">Reset Walls and Weights</button>
+                    </span>
 
-                        <span class="menu-segment">
-                            <button class="menu-button" id="run-algo">Run Algorithm</button>
-                        </span>
-                    </ul>
-                </nav>
-            </header>
+                    <span class="menu-segment">
+                        <button class="menu-button" id="reset-path">Reset Path</button>
+                    </span>
 
-            <span class="color-codes">🟥 Start</span>
-            <span class="color-codes">🟧 Goal</span>
-            <span class="color-codes">🟦 Searching</span>
-            <span class="color-codes">🟩 Frontier</span>           
-            <span class="color-codes">⬜ Unvisited</span>
-            <span class="color-codes">⬛ Wall</span>
-            <span class="color-codes">🟨 Final Path</span>        
+                    <span class="menu-segment">
+                        <button class="menu-button" id="run-algo">Run Algorithm</button>
+                    </span>
+                </ul>
+            </nav>
+        </header>
 
-            <div id="description">
-                A* combines heuristics and lowest weight path, so guarantees the shortest path if we use a proper heuristic
-            </div>
+        <span class="color-codes">🟥 Start</span>
+        <span class="color-codes">🟧 Goal</span>
+        <span class="color-codes">🟦 Searching</span>
+        <span class="color-codes">🟩 Frontier</span>
+        <span class="color-codes">⬜ Unvisited</span>
+        <span class="color-codes">⬛ Wall</span>
+        <span class="color-codes">🟨 Final Path</span>
 
-            <table id="grid"></table>
+        <div id="description">
+            A* combines heuristics and lowest weight path, so guarantees the shortest path if we use a proper heuristic
         </div>
-    </body>
 
-    <script src="compiledJS/bundle.js" type="module"></script>
+        <table id="grid"></table>
+    </div>
+
+    <div id="modal-container">
+        <div class="tutorial-modal">
+            <h1 class="heading">Running an Algorithm</h1>
+            <p>Simply select an algorithm from the dropdown menu at the top left corner and click "run algorithm" at the top right corner</p>
+        
+            <img class="modal-image" src="assets/runAlgo.png">
+            <button class="finish-tutorial modal-button">Finish Tutorial</button>
+        </div>
+
+        <div class="tutorial-modal">
+            <h1 class="heading">Maze Generation</h1>
+            <p>You don't have to draw walls and weights manually</p>
+            <p>If you select an item from the dropdown menu under "wall patterns" it will generate a maze of walls or weights automatically</p>     
+        
+            <img class="modal-image" src="assets/maze.png">
+            <button class="finish-tutorial modal-button">Finish Tutorial</button>         
+            <button class="next-page modal-button">Next Page</button>
+        </div>
+
+        <div class="tutorial-modal">
+            <h1 class="heading">Moving start and goal tiles</h1>
+            <p>To move a start or goal tile, simply drag and drop it onto an empty tile</p>
+
+            <img class="modal-image" src="assets/moveTile.png">
+            <button class="finish-tutorial modal-button">Finish Tutorial</button>
+            <button class="next-page modal-button">Next Page</button>
+        </div>
+
+        <div class="tutorial-modal">
+            <h1 class="heading">Drawing Walls and Weights</h1>
+            <p>You can draw walls and weights on the grid to see how the algorithms react to them</p>
+            <p>To do this simply drag your mouse along the grid and it'll smoothly draw across it</p>
+            <p>You can configure which one you want to draw using the menu at the top of the screen</p>
+                 
+            <img class="modal-image" src="assets/walls.png">
+            <button class="finish-tutorial modal-button">Finish Tutorial</button>
+            <button class="next-page modal-button">Next Page</button>
+        </div>
+
+        <div class="tutorial-modal">
+            <h1 class="heading">Weighted vs Unweighted</h1>
+            <p>When you're exploring the world not all roads are created equal</p>
+            <p>Some are smooth and easy to drive on, while some are bumpy and full of potholes</p>
+            <p>So what seems like the shortest path might not actually be the shortest path if we have to cross a bunch of badly paved roads</p>
+            <p>To model this, we can assign a tile a weight which tells us how much it costs to cross it</p>
+            <p>To find the shortest path, the algorithms will try to minimise the total cost. Algorithms that do this are weighted</p>
+            <p>However some algorithms simply ignore these weights. These algorithms are unweighted</p>
+        
+            <button class="finish-tutorial modal-button">Finish Tutorial</button>
+            <button class="next-page modal-button">Next Page</button>
+        </div>
+
+        <div class="tutorial-modal">
+            <h1 class="heading">What makes the algorithms different?</h1>
+            <p>All of the algorithms have a different way of going about their job, and they all have different goals they want to achieve</p>
+            <p>Some algorithms only care about finding a path. They'll take the first path they find no matter how long winded the path may be</p>
+            <p>Others are designed to always find the shortest path. They don't tend to find the path as fast, but they can guarantee that there's no other path that's shorter than theirs</p>
+            <p>Some algorithms are what's known as "weighted", and some are "unweighted". We'll get into what this means on the next page</p>
+
+            <button class="finish-tutorial modal-button">Finish Tutorial</button>
+            <button class="next-page modal-button">Next Page</button>
+        </div>
+
+        <div class="tutorial-modal">
+            <h1 class="heading">Wait, what's a pathfinding algorithm exactly?</h1>
+            <p class="sub-heading">A pathfinding algorithm is an algorithm that tries to find a path between two points</p>
+            <p>For instance, when you use Google maps and want to find a route between two places you're using a pathfinding algorithm</p>
+            <p>This app aims to demonstrate the process of how these algorithms actually go about finding this route</p>
+            <p>To demonstrate the algorithms I've used a grid whose tiles light up to show what the algorithm is doing at any point in time</p>
+            <p>You can add in walls that the algorithm can't cross to see how the algorithms will react</p>
+
+            <button class="finish-tutorial modal-button">Finish Tutorial</button>
+            <button class="next-page modal-button">Next Page</button>
+        </div>
+
+        <div class="tutorial-modal">
+            <h1 class="heading">Pathfinding Visualiser</h1>
+            <p class="sub-heading">This tutorial will explain what this app is and walk you through the features</p>
+            <p>You can jump in immediately if you want by pressing "finish tutorial", or click "next page" to access the next portion of the tutorial</p>
+
+
+            <button class="finish-tutorial modal-button">Finish Tutorial</button>
+            <button class="next-page modal-button">Next Page</button>
+        </div>     
+    </div>
+</body>
+
+<script src="compiledJS/bundle.js" type="module"></script>
+
 </html>

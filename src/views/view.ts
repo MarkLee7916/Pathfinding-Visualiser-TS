@@ -1,5 +1,5 @@
 import { Coord, HEIGHT, WIDTH } from "../controllers/constants";
-import { getDOMElem, getTileInDOM, initGenericGridInDOM, isColor, swapTileColors, wait } from "./viewUtils";
+import { getDOMElem, getDOMElemList, getTileInDOM, initGenericGridInDOM, isColor, swapTileColors, wait } from "./viewUtils";
 
 // Protocol we use to talk to the controller
 export const enum ViewMessages {
@@ -140,7 +140,23 @@ function initMenuEventListeners() {
     getDOMElem("#reset-path").addEventListener("click", resetPath);
     getDOMElem("#wall-pattern").addEventListener("change", generateWallPattern);
     getDOMElem("#block-type").addEventListener("change", updateWallType);
-    getDOMElem("#select-algo").addEventListener("change", updateAlgoDescription)
+    getDOMElem("#select-algo").addEventListener("change", updateAlgoDescription);
+    getDOMElemList(".finish-tutorial").forEach(elem => elem.addEventListener("click", finishTutorial));
+    getDOMElemList(".next-page").forEach(elem => elem.addEventListener("click", nextPage));
+}
+
+function nextPage(event) {
+    const nextPageButton = event.target;
+
+    nextPageButton.parentNode.style.visibility = "hidden";
+}
+
+function finishTutorial() {
+    const restOfPageDOM = <HTMLDivElement> getDOMElem("#page");
+    const tutorialModalDOM = <HTMLDivElement> getDOMElem("#modal-container");
+
+    restOfPageDOM.style.opacity = "1";
+    tutorialModalDOM.style.visibility = "hidden";
 }
 
 // When user selects a new algorithm, change description to that algorithm

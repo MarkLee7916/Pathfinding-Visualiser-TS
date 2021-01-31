@@ -8,6 +8,16 @@ export function getDOMElem(selector: string) {
     }
 }
 
+export function getDOMElemList(selector: string) {
+    const elemsDOM = document.querySelectorAll(selector);
+
+    if (elemsDOM === null || elemsDOM.length === 0) {
+        throw `Selector ${selector} wasn't found in index.html`;
+    } else {
+        return Array.from(elemsDOM).map(elem => <Element> elem);
+    }
+}
+
 export function initGenericGridInDOM(selector: string, height: number, width: number, heightPixels: number, widthPixels: number, tileColor: string) {
     const elemDOM = getDOMElem(selector);
 

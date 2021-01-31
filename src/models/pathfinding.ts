@@ -375,7 +375,7 @@ function fillRowRandomly(row: number) {
     }
 }
 
-function isTarget([row, col], [targRow, targCol]) {
+function isTarget([row, col]: Coord, [targRow, targCol]: Coord) {
     return row === targRow && col === targCol;
 }
 
