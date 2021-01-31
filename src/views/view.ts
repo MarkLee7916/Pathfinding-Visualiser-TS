@@ -1,4 +1,5 @@
 import { Coord, HEIGHT, WIDTH } from "../controllers/constants";
+import { parseNumbersFromString } from "../models/utils";
 import { getDOMElem, getDOMElemList, getTileInDOM, initGenericGridInDOM, isColor, swapTileColors, wait } from "./viewUtils";
 
 // Protocol we use to talk to the controller
@@ -142,13 +143,29 @@ function initMenuEventListeners() {
     getDOMElem("#block-type").addEventListener("change", updateWallType);
     getDOMElem("#select-algo").addEventListener("change", updateAlgoDescription);
     getDOMElemList(".finish-tutorial").forEach(elem => elem.addEventListener("click", finishTutorial));
+    getDOMElemList(".previous-page").forEach(elem => elem.addEventListener("click", previousPage));
     getDOMElemList(".next-page").forEach(elem => elem.addEventListener("click", nextPage));
+}
+function previousPage(event) {
+    const prevPageButton = event.target;
+
+    jumpPage(prevPageButton, curr => curr - 1);
 }
 
 function nextPage(event) {
     const nextPageButton = event.target;
 
-    nextPageButton.parentNode.style.visibility = "hidden";
+    jumpPage(nextPageButton, curr => curr + 1);
+}
+
+function jumpPage(nextPageButton: HTMLButtonElement, pageJump: (curr: number) => number) {
+    const currentModal = <HTMLDivElement> nextPageButton.parentNode;
+    const currentPageNumber = parseNumbersFromString(currentModal.id);
+    const nextPageNumber = pageJump(currentPageNumber);
+    const nextModal = <HTMLDivElement> getDOMElem(`#modal${nextPageNumber}`);
+
+    currentModal.style.visibility = "hidden";
+    nextModal.style.visibility = "visible";
 }
 
 function finishTutorial() {
@@ -156,7 +173,7 @@ function finishTutorial() {
     const tutorialModalDOM = <HTMLDivElement> getDOMElem("#modal-container");
 
     restOfPageDOM.style.opacity = "1";
-    tutorialModalDOM.style.visibility = "hidden";
+    tutorialModalDOM.style.display = "none";
 }
 
 // When user selects a new algorithm, change description to that algorithm

@@ -83,6 +83,11 @@ header::after {
   width: 80%;
   top: 20%;
   background-color: white;
+  visibility: hidden;
+}
+
+#modal1 {
+  visibility: visible;
 }
 
 .modal-image {
@@ -115,6 +120,14 @@ header::after {
   margin-right: 20px;
 }
 
+.previous-page {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  margin-right: 100px;
+  margin-bottom: 20px;
+}
+
 .modal-button {
   border: none;
   background-color: #e1909b;
@@ -127,6 +140,10 @@ header::after {
 .modal-button:hover {
   opacity: 0.5;
   cursor: pointer;
+}
+
+a:hover {
+  opacity: 0.5;
 }
 
 .row {

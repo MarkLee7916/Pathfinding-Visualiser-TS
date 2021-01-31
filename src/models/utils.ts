@@ -17,3 +17,10 @@ export function generateGrid<T>(input: T): T[][] {
 export function randomIntBetween(lower: number, upper: number) {
     return Math.floor(Math.random() * ( upper - lower)) + lower;
 }
+
+export function parseNumbersFromString(str: string) {
+    const numbersOnly = Array.from(str).filter(char => !isNaN(parseInt(char)));
+    const numberStr = numbersOnly.join("");
+
+    return parseInt(numberStr);
+}

@@ -982,7 +982,7 @@ exports.Stack = Stack;
 },{}],10:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
-exports.randomIntBetween = exports.generateGrid = void 0;
+exports.parseNumbersFromString = exports.randomIntBetween = exports.generateGrid = void 0;
 var constants_1 = require("../controllers/constants");
 function generateGrid(input) {
     var grid = [];
@@ -1000,6 +1000,12 @@ function randomIntBetween(lower, upper) {
     return Math.floor(Math.random() * (upper - lower)) + lower;
 }
 exports.randomIntBetween = randomIntBetween;
+function parseNumbersFromString(str) {
+    var numbersOnly = Array.from(str).filter(function (char) { return !isNaN(parseInt(char)); });
+    var numberStr = numbersOnly.join("");
+    return parseInt(numberStr);
+}
+exports.parseNumbersFromString = parseNumbersFromString;
 
 },{"../controllers/constants":1}],11:[function(require,module,exports){
 "use strict";
@@ -1064,6 +1070,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 exports.__esModule = true;
 exports.removeWeightFromTileInDOM = exports.renderWeightOnTileInDOM = exports.renderFrontierInDOM = exports.renderBlankTileInDOM = exports.renderWallTileInDOM = exports.renderSearchingTileInDOM = exports.renderPathTileInDOM = exports.initView = void 0;
 var constants_1 = require("../controllers/constants");
+var utils_1 = require("../models/utils");
 var viewUtils_1 = require("./viewUtils");
 var BACKGROUND_COLOR = "rgb(255, 255, 255)";
 var FINAL_PATH_COLOR = "rgb(245, 209, 66)";
@@ -1222,17 +1229,30 @@ function initMenuEventListeners() {
     viewUtils_1.getDOMElem("#block-type").addEventListener("change", updateWallType);
     viewUtils_1.getDOMElem("#select-algo").addEventListener("change", updateAlgoDescription);
     viewUtils_1.getDOMElemList(".finish-tutorial").forEach(function (elem) { return elem.addEventListener("click", finishTutorial); });
+    viewUtils_1.getDOMElemList(".previous-page").forEach(function (elem) { return elem.addEventListener("click", previousPage); });
     viewUtils_1.getDOMElemList(".next-page").forEach(function (elem) { return elem.addEventListener("click", nextPage); });
+}
+function previousPage(event) {
+    var prevPageButton = event.target;
+    jumpPage(prevPageButton, function (curr) { return curr - 1; });
 }
 function nextPage(event) {
     var nextPageButton = event.target;
-    nextPageButton.parentNode.style.visibility = "hidden";
+    jumpPage(nextPageButton, function (curr) { return curr + 1; });
+}
+function jumpPage(nextPageButton, pageJump) {
+    var currentModal = nextPageButton.parentNode;
+    var currentPageNumber = utils_1.parseNumbersFromString(currentModal.id);
+    var nextPageNumber = pageJump(currentPageNumber);
+    var nextModal = viewUtils_1.getDOMElem("#modal" + nextPageNumber);
+    currentModal.style.visibility = "hidden";
+    nextModal.style.visibility = "visible";
 }
 function finishTutorial() {
     var restOfPageDOM = viewUtils_1.getDOMElem("#page");
     var tutorialModalDOM = viewUtils_1.getDOMElem("#modal-container");
     restOfPageDOM.style.opacity = "1";
-    tutorialModalDOM.style.visibility = "hidden";
+    tutorialModalDOM.style.display = "none";
 }
 // When user selects a new algorithm, change description to that algorithm
 function updateAlgoDescription(event) {
@@ -1352,7 +1372,7 @@ function isFrontier(tile) {
     return viewUtils_1.isColor(tile, FRONTIER_COLOR);
 }
 
-},{"../controllers/constants":1,"./viewUtils":13}],13:[function(require,module,exports){
+},{"../controllers/constants":1,"../models/utils":10,"./viewUtils":13}],13:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 exports.swapTileColors = exports.isColor = exports.wait = exports.getTileInDOM = exports.initGenericGridInDOM = exports.getDOMElemList = exports.getDOMElem = void 0;
