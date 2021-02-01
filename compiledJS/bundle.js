@@ -1086,7 +1086,7 @@ var algoDescriptions = new Map([
     ["best-first-search", "Best first search is entirely heuristic based, so is unweighted and doesn't guarantee the shortest path"],
     ["a-star", "A* combines heuristics and lowest weight path, so guarantees the shortest path if we use a proper heuristic"],
     ["depth-first-search", "DFS always considers the most recent node it's seen, so is unweighted and doesn't guarantee shortest path"],
-    ["breadth-first-search", "BFS always considers the first node it's seen but not visited, so is weighted and guarantees shortest path"],
+    ["breadth-first-search", "BFS always considers the first node it's seen but not visited, so is unweighted and guarantees shortest path"],
     ["dijkstra", "Dijkstra's always considers the lowest weight nodes, so guarantees the shortest path"],
     ["bidirectional-BFS", "Bidirectional BFS does a BFS from both directions, so is unweighted and guarantees the shortest path"],
     ["bidirectional-DFS", "Bidirectional DFS does a DFS from both directions, so is unweighted and doesn't guarantee shortest path"],
