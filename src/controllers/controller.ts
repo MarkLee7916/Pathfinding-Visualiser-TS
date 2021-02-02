@@ -1,3 +1,4 @@
+import { Heuristic, setHeuristic } from "../models/comparators";
 import { bestFirstSearch, breadthFirstSearch, depthFirstSearch, initPathfinding, ModelMessages, resetWalls, setGoal, setStart, randomMaze, astar, dijkstra, setBlockTypeToWall, setBlockTypeToWeight, bidirectionalDFS, bidirectionalBFS, bidirectionalBestFirstSearch, bidirectionalDijkstra, bidirectionalAstar, toggleTile, divideHorizontal, divideVertical, bidirectionalRandomSearch, randomSearch } from "../models/pathfinding";
 import { initView, removeWeightFromTileInDOM, renderBlankTileInDOM, renderPathTileInDOM, renderFrontierInDOM, renderSearchingTileInDOM, renderWallTileInDOM, renderWeightOnTileInDOM, ViewMessages } from "../views/view";
 
@@ -30,6 +31,12 @@ const generateMazeStrToFunction = new Map<string, () => void>([
     ["divide-vertical", divideVertical]
 ]);
 
+const heuristicStrToFunction = new Map<string, () => void>([
+    ["manhattan", () => setHeuristic(Heuristic.Manhattan)],
+    ["chebyshev", () => setHeuristic(Heuristic.Chebyshev)],
+    ["euclidean", () => setHeuristic(Heuristic.Euclidean)],
+]);
+
 const viewMessageToAction = new Map([
     [ViewMessages.ActivateTile, content => toggleTile(<[number, number]>content)],
     [ViewMessages.SetStart, content => setStart(<[number, number]>content)],
@@ -37,7 +44,8 @@ const viewMessageToAction = new Map([
     [ViewMessages.RunAlgo, async content => await algoStrToFunction.get(<string>content)()],
     [ViewMessages.ResetBlocks, _ => resetWalls()],
     [ViewMessages.GenerateMaze, content => generateMazeStrToFunction.get(<string>content)()],
-    [ViewMessages.SetWallType, content => wallTypeStrToFunction.get(<string>content)()]
+    [ViewMessages.SetWallType, content => wallTypeStrToFunction.get(<string>content)()],
+    [ViewMessages.SetHeuristic, content => heuristicStrToFunction.get(<string>content)()]
 ]);
 
 const modelMessageToAction = new Map([

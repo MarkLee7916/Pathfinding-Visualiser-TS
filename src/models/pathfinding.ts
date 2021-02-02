@@ -7,7 +7,7 @@ import { Collection } from "./collection";
 import { Coord, HEIGHT, WIDTH } from "../controllers/constants";
 import { Vertice } from "./vertice";
 import { generateGrid, randomIntBetween } from "./utils";
-import { generateAStarComparator as generateAstarComparator, generateDijkstraComparator, generateGoalDistComparator, generateRandomComparator } from "./comparators";
+import { generateAStarComparator as generateAstarComparator, generateDijkstraComparator, generateHeuristic, generateRandomComparator } from "./comparators";
 
 type Weights = number[][];
 export type Node = Vertice<Coord>;
@@ -114,7 +114,7 @@ export async function breadthFirstSearch() {
 }
 
 export async function bestFirstSearch() {
-    const gridComparator = generateGoalDistComparator(goal);
+    const gridComparator = generateHeuristic(goal);
     const priorityQueue = new PriorityQueue<Node>(gridComparator);
 
     await genericUnidirectionalSearch(priorityQueue, weights);
@@ -173,8 +173,8 @@ export async function bidirectionalBFS() {
 }
 
 export async function bidirectionalBestFirstSearch() {
-    const forwardsComparator = generateGoalDistComparator(goal);
-    const backwardsComparator = generateGoalDistComparator(start);
+    const forwardsComparator = generateHeuristic(goal);
+    const backwardsComparator = generateHeuristic(start);
 
     const forwardPriorityQueue = new PriorityQueue<Node>(forwardsComparator);
     const backwardPriorityQueue = new PriorityQueue<Node>(backwardsComparator);

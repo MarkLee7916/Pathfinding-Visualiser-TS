@@ -3,6 +3,7 @@ import { parseNumbersFromString } from "../models/utils";
 import { getDOMElem, getDOMElemList, getTileInDOM, initGenericGridInDOM, isColor, swapTileColors, wait } from "./viewUtils";
 
 // Protocol we use to talk to the controller
+
 export const enum ViewMessages {
     ActivateTile,
     SetStart,
@@ -10,7 +11,8 @@ export const enum ViewMessages {
     RunAlgo,
     ResetBlocks,
     GenerateMaze,
-    SetWallType
+    SetWallType,
+    SetHeuristic
 }
 
 const BACKGROUND_COLOR = "rgb(255, 255, 255)";
@@ -27,15 +29,15 @@ const WIDTH_PIXELS = HEIGHT_PIXELS * (WIDTH / HEIGHT);
 // Map an algorithm onto its description
 const algoDescriptions = new Map([
     ["best-first-search", "Best first search is entirely heuristic based, so is unweighted and doesn't guarantee the shortest path"],
-    ["a-star", "A* combines heuristics and lowest weight path, so guarantees the shortest path if we use a proper heuristic"],
+    ["a-star", "A* combines heuristics and lowest weight path, so guarantees the shortest path if our heuristic doesn't overestimate the distance"],
     ["depth-first-search", "DFS always considers the most recent node it's seen, so is unweighted and doesn't guarantee shortest path"],
-    ["breadth-first-search", "BFS always considers the first node it's seen but not visited, so is unweighted and guarantees shortest path"],
-    ["dijkstra", "Dijkstra's always considers the lowest weight nodes, so guarantees the shortest path"],
+    ["breadth-first-search", "BFS always considers the least recent node it's seen, so is unweighted and guarantees shortest path"],
+    ["dijkstra", "Dijkstra's always considers the lowest weight nodes, so is weighted and guarantees the shortest path"],
     ["bidirectional-BFS", "Bidirectional BFS does a BFS from both directions, so is unweighted and guarantees the shortest path"],
     ["bidirectional-DFS", "Bidirectional DFS does a DFS from both directions, so is unweighted and doesn't guarantee shortest path"],
     ["bidirectional-GBFS", "Bidirectional GBFS runs from both directions, so is unweighted and doesn't guarantee the shortest path"],
     ["bidirectional-dijkstra", "Bidirectional Dijkstra's runs from both directions, so is weighted and guarantees the shortest path"],
-    ["bidirectional-a-star", "Bidirectional A* is weighted and guarantees the shortest path if we use a proper heuristic"],
+    ["bidirectional-a-star", "Bidirectional A* is weighted and guarantees the shortest path if if our heuristic doesn't overestimate the distance"],
     ["random", "Random search searches the grid randomly without any purpose, so is unweighted and guarantees nothing"],
     ["bidirectional-random", "Random search running concurrently from both the start and goal nodes"]
 ]);
@@ -142,22 +144,33 @@ function initMenuEventListeners() {
     getDOMElem("#wall-pattern").addEventListener("change", generateWallPattern);
     getDOMElem("#block-type").addEventListener("change", updateWallType);
     getDOMElem("#select-algo").addEventListener("change", updateAlgoDescription);
+    getDOMElem("#heuristic-type").addEventListener("change", updateHeuristic);
     getDOMElemList(".finish-tutorial").forEach(elem => elem.addEventListener("click", finishTutorial));
     getDOMElemList(".previous-page").forEach(elem => elem.addEventListener("click", previousPage));
     getDOMElemList(".next-page").forEach(elem => elem.addEventListener("click", nextPage));
 }
+
+function updateHeuristic(event) {
+    const heuristicStr = event.target.value;
+
+    notifyController(ViewMessages.SetHeuristic, heuristicStr);
+}
+
+// Go to previous modal page
 function previousPage(event) {
     const prevPageButton = event.target;
 
     jumpPage(prevPageButton, curr => curr - 1);
 }
 
+// Go to next modal page
 function nextPage(event) {
     const nextPageButton = event.target;
 
     jumpPage(nextPageButton, curr => curr + 1);
 }
 
+// Go to modal page specified by the function
 function jumpPage(nextPageButton: HTMLButtonElement, pageJump: (curr: number) => number) {
     const currentModal = <HTMLDivElement> nextPageButton.parentNode;
     const currentPageNumber = parseNumbersFromString(currentModal.id);
@@ -168,6 +181,7 @@ function jumpPage(nextPageButton: HTMLButtonElement, pageJump: (curr: number) =>
     nextModal.style.visibility = "visible";
 }
 
+// Close all modals, allowing user to start using the app
 function finishTutorial() {
     const restOfPageDOM = <HTMLDivElement> getDOMElem("#page");
     const tutorialModalDOM = <HTMLDivElement> getDOMElem("#modal-container");

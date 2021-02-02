@@ -45,6 +45,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
+var comparators_1 = require("../models/comparators");
 var pathfinding_1 = require("../models/pathfinding");
 var view_1 = require("../views/view");
 // Map an HTML value representation of a pathfinding algorithm to an actual implementation
@@ -73,6 +74,11 @@ var generateMazeStrToFunction = new Map([
     ["divide-horizontal", pathfinding_1.divideHorizontal],
     ["divide-vertical", pathfinding_1.divideVertical]
 ]);
+var heuristicStrToFunction = new Map([
+    ["manhattan", function () { return comparators_1.setHeuristic(1 /* Manhattan */); }],
+    ["chebyshev", function () { return comparators_1.setHeuristic(2 /* Chebyshev */); }],
+    ["euclidean", function () { return comparators_1.setHeuristic(0 /* Euclidean */); }],
+]);
 var viewMessageToAction = new Map([
     [0 /* ActivateTile */, function (content) { return pathfinding_1.toggleTile(content); }],
     [1 /* SetStart */, function (content) { return pathfinding_1.setStart(content); }],
@@ -85,7 +91,8 @@ var viewMessageToAction = new Map([
         }); }); }],
     [4 /* ResetBlocks */, function (_) { return pathfinding_1.resetWalls(); }],
     [5 /* GenerateMaze */, function (content) { return generateMazeStrToFunction.get(content)(); }],
-    [6 /* SetWallType */, function (content) { return wallTypeStrToFunction.get(content)(); }]
+    [6 /* SetWallType */, function (content) { return wallTypeStrToFunction.get(content)(); }],
+    [7 /* SetHeuristic */, function (content) { return heuristicStrToFunction.get(content)(); }]
 ]);
 var modelMessageToAction = new Map([
     [0 /* RenderPathTile */, function (content) { return __awaiter(void 0, void 0, void 0, function () { return __generator(this, function (_a) {
@@ -154,12 +161,50 @@ function readMessageFromModel(message, content) {
     pathfinding_1.initPathfinding(readMessageFromModel);
 })();
 
-},{"../models/pathfinding":6,"../views/view":12}],3:[function(require,module,exports){
+},{"../models/comparators":3,"../models/pathfinding":6,"../views/view":12}],3:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
-exports.generateRandomComparator = exports.generateDijkstraComparator = exports.generateAStarComparator = exports.generateGoalDistComparator = void 0;
-// Return a comparator that implements a heuristic that is biased in favour of nodes near the goal node
-function generateGoalDistComparator(_a) {
+exports.generateRandomComparator = exports.generateDijkstraComparator = exports.generateAStarComparator = exports.generateHeuristic = exports.setHeuristic = void 0;
+// Reference to the heuristic the user has selected
+var currentHeuristic = generateManhattanComparator;
+// Map a heuristic onto its implementation
+var enumToFunction = new Map([
+    [1 /* Manhattan */, generateManhattanComparator],
+    [0 /* Euclidean */, generateEuclideanComparator],
+    [2 /* Chebyshev */, generateChebyshevComparator]
+]);
+// Update the selected heuristic
+function setHeuristic(heuristic) {
+    currentHeuristic = enumToFunction.get(heuristic);
+}
+exports.setHeuristic = setHeuristic;
+// Return whichever heuristic user has selected
+function generateHeuristic(goal) {
+    return currentHeuristic(goal);
+}
+exports.generateHeuristic = generateHeuristic;
+// Given two coordinates (p1, p2) and (g1, g2), return comparator that compares using formula max(abs(p1 - g1), abs(p2 - g2))
+function generateChebyshevComparator(_a) {
+    var goalRow = _a[0], goalCol = _a[1];
+    return function (node1, node2) {
+        var _a = node1.val(), r1 = _a[0], c1 = _a[1];
+        var _b = node2.val(), r2 = _b[0], c2 = _b[1];
+        return Math.max(Math.abs(r2 - goalRow), Math.abs(c2 - goalCol)) - Math.max(Math.abs(r1 - goalRow), Math.abs(c1 - goalCol));
+    };
+}
+// Given two coordinates (p1, p2) and (g1, g2), return comparator that compares using formula sqrt((p1 - g1)^2 + abs(p2 - g2)^2)
+function generateEuclideanComparator(_a) {
+    var goalRow = _a[0], goalCol = _a[1];
+    return function (node1, node2) {
+        var _a = node1.val(), r1 = _a[0], c1 = _a[1];
+        var _b = node2.val(), r2 = _b[0], c2 = _b[1];
+        var r1Dist = Math.sqrt(Math.pow(r1 - goalRow, 2) + Math.pow(c1 - goalCol, 2));
+        var r2Dist = Math.sqrt(Math.pow(r2 - goalRow, 2) + Math.pow(c2 - goalCol, 2));
+        return r2Dist - r1Dist;
+    };
+}
+// Given two coordinates (p1, p2) and (g1, g2), return comparator that compares using formula abs(p1 - g1) + abs(p2 - g2) 
+function generateManhattanComparator(_a) {
     var goalRow = _a[0], goalCol = _a[1];
     return function (node1, node2) {
         var _a = node1.val(), r1 = _a[0], c1 = _a[1];
@@ -167,13 +212,12 @@ function generateGoalDistComparator(_a) {
         return (Math.abs(r2 - goalRow) + Math.abs(c2 - goalCol)) - (Math.abs(r1 - goalRow) + Math.abs(c1 - goalCol));
     };
 }
-exports.generateGoalDistComparator = generateGoalDistComparator;
 // Return a comparator that combines a goal based heuristic with a lowest weights heuristic
 function generateAStarComparator(goal) {
     return function (node1, node2) {
         var dijkstraHeuristic = generateDijkstraComparator()(node1, node2);
-        var goalDistHeuristic = generateGoalDistComparator(goal)(node1, node2);
-        return dijkstraHeuristic + goalDistHeuristic;
+        var goalHeuristic = currentHeuristic(goal)(node1, node2);
+        return dijkstraHeuristic + goalHeuristic;
     };
 }
 exports.generateAStarComparator = generateAStarComparator;
@@ -422,7 +466,7 @@ function bestFirstSearch() {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    gridComparator = comparators_1.generateGoalDistComparator(goal);
+                    gridComparator = comparators_1.generateHeuristic(goal);
                     priorityQueue = new priorityQueue_1.PriorityQueue(gridComparator);
                     return [4 /*yield*/, genericUnidirectionalSearch(priorityQueue, weights)];
                 case 1:
@@ -540,8 +584,8 @@ function bidirectionalBestFirstSearch() {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    forwardsComparator = comparators_1.generateGoalDistComparator(goal);
-                    backwardsComparator = comparators_1.generateGoalDistComparator(start);
+                    forwardsComparator = comparators_1.generateHeuristic(goal);
+                    backwardsComparator = comparators_1.generateHeuristic(start);
                     forwardPriorityQueue = new priorityQueue_1.PriorityQueue(forwardsComparator);
                     backwardPriorityQueue = new priorityQueue_1.PriorityQueue(backwardsComparator);
                     return [4 /*yield*/, genericBidirectionalSearch(forwardPriorityQueue, backwardPriorityQueue, weights)];
@@ -1084,15 +1128,15 @@ var WIDTH_PIXELS = HEIGHT_PIXELS * (constants_1.WIDTH / constants_1.HEIGHT);
 // Map an algorithm onto its description
 var algoDescriptions = new Map([
     ["best-first-search", "Best first search is entirely heuristic based, so is unweighted and doesn't guarantee the shortest path"],
-    ["a-star", "A* combines heuristics and lowest weight path, so guarantees the shortest path if we use a proper heuristic"],
+    ["a-star", "A* combines heuristics and lowest weight path, so guarantees the shortest path if our heuristic doesn't overestimate the distance"],
     ["depth-first-search", "DFS always considers the most recent node it's seen, so is unweighted and doesn't guarantee shortest path"],
-    ["breadth-first-search", "BFS always considers the first node it's seen but not visited, so is unweighted and guarantees shortest path"],
-    ["dijkstra", "Dijkstra's always considers the lowest weight nodes, so guarantees the shortest path"],
+    ["breadth-first-search", "BFS always considers the least recent node it's seen, so is unweighted and guarantees shortest path"],
+    ["dijkstra", "Dijkstra's always considers the lowest weight nodes, so is weighted and guarantees the shortest path"],
     ["bidirectional-BFS", "Bidirectional BFS does a BFS from both directions, so is unweighted and guarantees the shortest path"],
     ["bidirectional-DFS", "Bidirectional DFS does a DFS from both directions, so is unweighted and doesn't guarantee shortest path"],
     ["bidirectional-GBFS", "Bidirectional GBFS runs from both directions, so is unweighted and doesn't guarantee the shortest path"],
     ["bidirectional-dijkstra", "Bidirectional Dijkstra's runs from both directions, so is weighted and guarantees the shortest path"],
-    ["bidirectional-a-star", "Bidirectional A* is weighted and guarantees the shortest path if we use a proper heuristic"],
+    ["bidirectional-a-star", "Bidirectional A* is weighted and guarantees the shortest path if if our heuristic doesn't overestimate the distance"],
     ["random", "Random search searches the grid randomly without any purpose, so is unweighted and guarantees nothing"],
     ["bidirectional-random", "Random search running concurrently from both the start and goal nodes"]
 ]);
@@ -1228,18 +1272,26 @@ function initMenuEventListeners() {
     viewUtils_1.getDOMElem("#wall-pattern").addEventListener("change", generateWallPattern);
     viewUtils_1.getDOMElem("#block-type").addEventListener("change", updateWallType);
     viewUtils_1.getDOMElem("#select-algo").addEventListener("change", updateAlgoDescription);
+    viewUtils_1.getDOMElem("#heuristic-type").addEventListener("change", updateHeuristic);
     viewUtils_1.getDOMElemList(".finish-tutorial").forEach(function (elem) { return elem.addEventListener("click", finishTutorial); });
     viewUtils_1.getDOMElemList(".previous-page").forEach(function (elem) { return elem.addEventListener("click", previousPage); });
     viewUtils_1.getDOMElemList(".next-page").forEach(function (elem) { return elem.addEventListener("click", nextPage); });
 }
+function updateHeuristic(event) {
+    var heuristicStr = event.target.value;
+    notifyController(7 /* SetHeuristic */, heuristicStr);
+}
+// Go to previous modal page
 function previousPage(event) {
     var prevPageButton = event.target;
     jumpPage(prevPageButton, function (curr) { return curr - 1; });
 }
+// Go to next modal page
 function nextPage(event) {
     var nextPageButton = event.target;
     jumpPage(nextPageButton, function (curr) { return curr + 1; });
 }
+// Go to modal page specified by the function
 function jumpPage(nextPageButton, pageJump) {
     var currentModal = nextPageButton.parentNode;
     var currentPageNumber = utils_1.parseNumbersFromString(currentModal.id);
@@ -1248,6 +1300,7 @@ function jumpPage(nextPageButton, pageJump) {
     currentModal.style.visibility = "hidden";
     nextModal.style.visibility = "visible";
 }
+// Close all modals, allowing user to start using the app
 function finishTutorial() {
     var restOfPageDOM = viewUtils_1.getDOMElem("#page");
     var tutorialModalDOM = viewUtils_1.getDOMElem("#modal-container");
