@@ -2,5 +2,6 @@
 export interface Collection<T> {
     add: (input: T) => void,
     remove: () => T,
-    isEmpty: () => boolean
+    isEmpty: () => boolean,
+    find: (predicate: (elem: T) => boolean) => T
 }

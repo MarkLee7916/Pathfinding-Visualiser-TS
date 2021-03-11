@@ -12,6 +12,10 @@ export class Queue<T> implements Collection<T> {
         this.queue.push(item);
     }
 
+    find(predicate: (elem: T) => boolean) {
+        return this.queue.find(predicate);
+    }
+
     remove() {
         return this.queue.shift();
     }

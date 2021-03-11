@@ -84,6 +84,10 @@ export class PriorityQueue<T> implements Collection<T> {
         this.heap[j] = temp;
     }
 
+    public find(predicate: (elem: T) => boolean) {
+        return this.heap.find(predicate);
+    }
+
     // Add new item to bottom of heap and move into its appropiate place 
     public add(elem: T) {
         this.size++;

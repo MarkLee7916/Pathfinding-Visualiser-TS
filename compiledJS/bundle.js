@@ -78,6 +78,7 @@ var heuristicStrToFunction = new Map([
     ["manhattan", function () { return comparators_1.setHeuristic(1 /* Manhattan */); }],
     ["chebyshev", function () { return comparators_1.setHeuristic(2 /* Chebyshev */); }],
     ["euclidean", function () { return comparators_1.setHeuristic(0 /* Euclidean */); }],
+    ["combination", function () { return comparators_1.setHeuristic(3 /* Combination */); }]
 ]);
 var viewMessageToAction = new Map([
     [0 /* ActivateTile */, function (content) { return pathfinding_1.toggleTile(content); }],
@@ -171,7 +172,8 @@ var currentHeuristic = generateManhattanComparator;
 var enumToFunction = new Map([
     [1 /* Manhattan */, generateManhattanComparator],
     [0 /* Euclidean */, generateEuclideanComparator],
-    [2 /* Chebyshev */, generateChebyshevComparator]
+    [2 /* Chebyshev */, generateChebyshevComparator],
+    [3 /* Combination */, generateCombinationComparator]
 ]);
 // Update the selected heuristic
 function setHeuristic(heuristic) {
@@ -183,6 +185,15 @@ function generateHeuristic(goal) {
     return currentHeuristic(goal);
 }
 exports.generateHeuristic = generateHeuristic;
+// Since all heuristics are admissable, we can take max of all of them to produce an optimal heuristic
+function generateCombinationComparator(goal) {
+    return function (node1, node2) {
+        var chebyshevHeuristic = generateChebyshevComparator(goal)(node1, node2);
+        var manhattanHeuristic = generateManhattanComparator(goal)(node1, node2);
+        var euclideanHeuristic = generateEuclideanComparator(goal)(node1, node2);
+        return Math.max(chebyshevHeuristic, manhattanHeuristic, euclideanHeuristic);
+    };
+}
 // Given two coordinates (p1, p2) and (g1, g2), return comparator that compares using formula max(abs(p1 - g1), abs(p2 - g2))
 function generateChebyshevComparator(_a) {
     var goalRow = _a[0], goalCol = _a[1];
@@ -797,23 +808,27 @@ function considerNextNode(path, visited, nodes, target, weights, considered) {
                     return [4 /*yield*/, notifyController(1 /* RenderSearching */, currentPos.val())];
                 case 1:
                     _a.sent();
-                    if (isTarget(currentPos.val(), target)) {
+                    if (isSameCoord(currentPos.val(), target)) {
                         return [2 /*return*/, true];
                     }
                     currentNeighbours.forEach(function (neighbour) {
                         if (!walls.isOutOfBounds(neighbour) && !walls.has(neighbour)) {
                             var neighbourRow = neighbour[0], neighbourCol = neighbour[1];
-                            var neighbourVertice = new vertice_1.Vertice(neighbour);
                             var newNeighbourDistance = currentPos.dist() + weights[neighbourRow][neighbourCol];
                             if (!visited.has(neighbour)) {
+                                var neighbourVertice = new vertice_1.Vertice(neighbour);
                                 notifyController(4 /* RenderFrontier */, neighbour);
                                 neighbourVertice.updateDist(newNeighbourDistance);
                                 nodes.add(neighbourVertice);
                                 visited.fill(neighbour);
                                 path.add(neighbour, currentPos.val());
                             }
-                            else if (newNeighbourDistance < neighbourVertice.dist()) {
-                                neighbourVertice.updateDist(newNeighbourDistance);
+                            else {
+                                var vertice = nodes.find(function (vertice) { return isSameCoord(vertice.val(), neighbour); });
+                                if (vertice !== undefined && newNeighbourDistance < vertice.dist()) {
+                                    vertice.updateDist(newNeighbourDistance);
+                                    path.add(neighbour, currentPos.val());
+                                }
                             }
                         }
                     });
@@ -837,7 +852,7 @@ function fillRowRandomly(row) {
         }
     }
 }
-function isTarget(_a, _b) {
+function isSameCoord(_a, _b) {
     var row = _a[0], col = _a[1];
     var targRow = _b[0], targCol = _b[1];
     return row === targRow && col === targCol;
@@ -954,6 +969,9 @@ var PriorityQueue = /** @class */ (function () {
         this.heap[i] = this.heap[j];
         this.heap[j] = temp;
     };
+    PriorityQueue.prototype.find = function (predicate) {
+        return this.heap.find(predicate);
+    };
     // Add new item to bottom of heap and move into its appropiate place 
     PriorityQueue.prototype.add = function (elem) {
         this.size++;
@@ -991,6 +1009,9 @@ var Queue = /** @class */ (function () {
     Queue.prototype.add = function (item) {
         this.queue.push(item);
     };
+    Queue.prototype.find = function (predicate) {
+        return this.queue.find(predicate);
+    };
     Queue.prototype.remove = function () {
         return this.queue.shift();
     };
@@ -1012,6 +1033,9 @@ var Stack = /** @class */ (function () {
     }
     Stack.prototype.add = function (item) {
         this.stack.push(item);
+    };
+    Stack.prototype.find = function (predicate) {
+        return this.stack.find(predicate);
     };
     Stack.prototype.remove = function () {
         return this.stack.pop();
@@ -1136,7 +1160,7 @@ var algoDescriptions = new Map([
     ["bidirectional-DFS", "Bidirectional DFS does a DFS from both directions, so is unweighted and doesn't guarantee shortest path"],
     ["bidirectional-GBFS", "Bidirectional GBFS runs from both directions, so is unweighted and doesn't guarantee the shortest path"],
     ["bidirectional-dijkstra", "Bidirectional Dijkstra's runs from both directions, so is weighted and guarantees the shortest path"],
-    ["bidirectional-a-star", "Bidirectional A* is weighted and guarantees the shortest path if if our heuristic doesn't overestimate the distance"],
+    ["bidirectional-a-star", "Bidirectional A* is weighted and guarantees the shortest path if our heuristic doesn't overestimate the distance"],
     ["random", "Random search searches the grid randomly without any purpose, so is unweighted and guarantees nothing"],
     ["bidirectional-random", "Random search running concurrently from both the start and goal nodes"]
 ]);

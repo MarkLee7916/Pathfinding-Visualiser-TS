@@ -12,6 +12,10 @@ export class Stack<T> implements Collection<T> {
         this.stack.push(item);
     }
 
+    find(predicate: (elem: T) => boolean) {
+        return this.stack.find(predicate);
+    }
+
     remove() {
         return this.stack.pop();
     }

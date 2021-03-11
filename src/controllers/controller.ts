@@ -35,6 +35,7 @@ const heuristicStrToFunction = new Map<string, () => void>([
     ["manhattan", () => setHeuristic(Heuristic.Manhattan)],
     ["chebyshev", () => setHeuristic(Heuristic.Chebyshev)],
     ["euclidean", () => setHeuristic(Heuristic.Euclidean)],
+    ["combination", () => setHeuristic(Heuristic.Combination)]
 ]);
 
 const viewMessageToAction = new Map([

@@ -7,7 +7,7 @@ import { Collection } from "./collection";
 import { Coord, HEIGHT, WIDTH } from "../controllers/constants";
 import { Vertice } from "./vertice";
 import { generateGrid, randomIntBetween } from "./utils";
-import { generateAStarComparator as generateAstarComparator, generateDijkstraComparator, generateHeuristic, generateRandomComparator } from "./comparators";
+import { generateAStarComparator, generateDijkstraComparator, generateHeuristic, generateRandomComparator } from "./comparators";
 
 type Weights = number[][];
 export type Node = Vertice<Coord>;
@@ -121,7 +121,7 @@ export async function bestFirstSearch() {
 }
 
 export async function astar() {
-    const gridComparator = generateAstarComparator(goal);
+    const gridComparator = generateAStarComparator(goal);
     const priorityQueue = new PriorityQueue<Node>(gridComparator);
 
     await genericUnidirectionalSearch(priorityQueue, weights);
@@ -199,8 +199,8 @@ export async function bidirectionalRandomSearch() {
 }
 
 export async function bidirectionalAstar() {
-    const forwardsComparator = generateAstarComparator(goal);
-    const backwardsComparator = generateAstarComparator(start);
+    const forwardsComparator = generateAStarComparator(goal);
+    const backwardsComparator = generateAStarComparator(start);
 
     const forwardPriorityQueue = new PriorityQueue<Node>(forwardsComparator);
     const backwardPriorityQueue = new PriorityQueue<Node>(backwardsComparator);
@@ -332,25 +332,31 @@ async function considerNextNode(path: HashMap<Coord, Coord>, visited: Grid, node
     considered.fill(currentPos.val());
     await notifyController(ModelMessages.RenderSearching, currentPos.val());
 
-    if (isTarget(currentPos.val(), target)) {
+    if (isSameCoord(currentPos.val(), target)) {
         return true;
     }
 
     currentNeighbours.forEach(neighbour => {
         if (!walls.isOutOfBounds(neighbour) && !walls.has(neighbour)) {
-            const [neighbourRow, neighbourCol] = neighbour;
-            const neighbourVertice = new Vertice(neighbour);
+            const [neighbourRow, neighbourCol] = neighbour;           
             const newNeighbourDistance = currentPos.dist() + weights[neighbourRow][neighbourCol];
 
             if (!visited.has(neighbour)) {
+                const neighbourVertice = new Vertice(neighbour);
+
                 notifyController(ModelMessages.RenderFrontier, neighbour);
                 neighbourVertice.updateDist(newNeighbourDistance);
 
                 nodes.add(neighbourVertice);
                 visited.fill(neighbour);
                 path.add(neighbour, currentPos.val());
-            } else if (newNeighbourDistance < neighbourVertice.dist()) {
-                neighbourVertice.updateDist(newNeighbourDistance);
+            } else {
+                const vertice = nodes.find(vertice => isSameCoord(vertice.val(), neighbour));
+
+                if (vertice !== undefined && newNeighbourDistance < vertice.dist()) {
+                    vertice.updateDist(newNeighbourDistance);
+                    path.add(neighbour, currentPos.val());
+                }
             }
         }
     });
@@ -375,7 +381,7 @@ function fillRowRandomly(row: number) {
     }
 }
 
-function isTarget([row, col]: Coord, [targRow, targCol]: Coord) {
+function isSameCoord([row, col]: Coord, [targRow, targCol]: Coord) {
     return row === targRow && col === targCol;
 }
 

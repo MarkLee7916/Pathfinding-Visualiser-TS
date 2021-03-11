@@ -7,15 +7,18 @@ let currentHeuristic = generateManhattanComparator;
 export const enum Heuristic {
     Euclidean,
     Manhattan,
-    Chebyshev
+    Chebyshev,
+    Combination
 }
 
 // Map a heuristic onto its implementation
 const enumToFunction = new Map([
     [Heuristic.Manhattan, generateManhattanComparator],
     [Heuristic.Euclidean, generateEuclideanComparator],
-    [Heuristic.Chebyshev, generateChebyshevComparator]
+    [Heuristic.Chebyshev, generateChebyshevComparator],
+    [Heuristic.Combination, generateCombinationComparator]
 ]);
+
 
 // Update the selected heuristic
 export function setHeuristic(heuristic: Heuristic) {
@@ -26,6 +29,18 @@ export function setHeuristic(heuristic: Heuristic) {
 export function generateHeuristic(goal: Coord) {
     return currentHeuristic(goal);
 }
+
+// Since all heuristics are admissable, we can take max of all of them to produce an optimal heuristic
+function generateCombinationComparator(goal: Coord) {
+    return (node1: Node, node2: Node) => {
+        const chebyshevHeuristic = generateChebyshevComparator(goal)(node1, node2);
+        const manhattanHeuristic = generateManhattanComparator(goal)(node1, node2);
+        const euclideanHeuristic = generateEuclideanComparator(goal)(node1, node2);
+
+        return Math.max(chebyshevHeuristic, manhattanHeuristic, euclideanHeuristic)
+    }
+}
+
 
 // Given two coordinates (p1, p2) and (g1, g2), return comparator that compares using formula max(abs(p1 - g1), abs(p2 - g2))
 function generateChebyshevComparator([goalRow, goalCol]: Coord) {

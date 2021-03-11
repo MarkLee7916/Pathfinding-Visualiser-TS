@@ -37,7 +37,7 @@ const algoDescriptions = new Map([
     ["bidirectional-DFS", "Bidirectional DFS does a DFS from both directions, so is unweighted and doesn't guarantee shortest path"],
     ["bidirectional-GBFS", "Bidirectional GBFS runs from both directions, so is unweighted and doesn't guarantee the shortest path"],
     ["bidirectional-dijkstra", "Bidirectional Dijkstra's runs from both directions, so is weighted and guarantees the shortest path"],
-    ["bidirectional-a-star", "Bidirectional A* is weighted and guarantees the shortest path if if our heuristic doesn't overestimate the distance"],
+    ["bidirectional-a-star", "Bidirectional A* is weighted and guarantees the shortest path if our heuristic doesn't overestimate the distance"],
     ["random", "Random search searches the grid randomly without any purpose, so is unweighted and guarantees nothing"],
     ["bidirectional-random", "Random search running concurrently from both the start and goal nodes"]
 ]);

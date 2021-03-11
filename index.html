@@ -4,6 +4,7 @@
 <head>
     <title>Pathfinding Visualiser</title>
     <meta charset="UTF-8" />
+    <link rel="icon" href="assets/graph.svg" type="image/icon type">
     <link rel="stylesheet" href="index.css" />
 </head>
 
@@ -12,58 +13,44 @@
         <header>
             <nav>
                 <ul id="menu">
-                    <span class="menu-segment">
-                        <select id="select-algo" class="menu-button">
-                            <option value="a-star">A*</option>
-                            <option value="best-first-search">Greedy Best First Search</option>
-                            <option value="depth-first-search">Depth First Search</option>
-                            <option value="breadth-first-search">Breadth First Search</option>
-                            <option value="dijkstra">Dijkstra's</option>
-                            <option value="random">Random Search</option>
-                            <option value="bidirectional-a-star">Bidirectional A*</option>
-                            <option value="bidirectional-GBFS">Bidirectional GBFS</option>
-                            <option value="bidirectional-DFS">Bidirectional DFS</option>
-                            <option value="bidirectional-BFS">Bidirectional BFS</option>
-                            <option value="bidirectional-dijkstra">Bidirectional Dijkstra's</option>
-                            <option value="bidirectional-random">Bidirectional Random</option>
-                        </select>
-                    </span>
+                    <select id="select-algo" class="menu-button">
+                        <option value="a-star">A*</option>
+                        <option value="best-first-search">Greedy Best First Search</option>
+                        <option value="depth-first-search">Depth First Search</option>
+                        <option value="breadth-first-search">Breadth First Search</option>
+                        <option value="dijkstra">Dijkstra's</option>
+                        <option value="random">Random Search</option>
+                        <option value="bidirectional-a-star">Bidirectional A*</option>
+                        <option value="bidirectional-GBFS">Bidirectional GBFS</option>
+                        <option value="bidirectional-DFS">Bidirectional DFS</option>
+                        <option value="bidirectional-BFS">Bidirectional BFS</option>
+                        <option value="bidirectional-dijkstra">Bidirectional Dijkstra's</option>
+                        <option value="bidirectional-random">Bidirectional Random</option>
+                    </select>
 
-                    <span class="menu-segment">
-                        <select id="wall-pattern" class="menu-button">
-                            <option selected disabled value="not-selected">Wall Patterns:</option>
-                            <option value="random-maze">Random Maze</option>
-                            <option value="divide-horizontal">Divide Horizontal</option>
-                            <option value="divide-vertical">Divide Vertical</option>
-                        </select>
-                    </span>
+                    <select id="wall-pattern" class="menu-button">
+                        <option selected disabled value="not-selected">Wall Patterns:</option>
+                        <option value="random-maze">Random Maze</option>
+                        <option value="divide-horizontal">Divide Horizontal</option>
+                        <option value="divide-vertical">Divide Vertical</option>
+                    </select>
 
-                    <span class="menu-segment">
-                        <select id="block-type" class="menu-button">
-                            <option value="wall">Add Walls</option>
-                            <option value="weight">Add Weights</option>
-                        </select>
-                    </span>
+                    <select id="block-type" class="menu-button">
+                        <option value="wall">Add Walls</option>
+                        <option value="weight">Add Weights</option>
+                    </select>
 
-                    <span class="menu-segment">
-                        <select id="heuristic-type" class="menu-button">                  
-                            <option value="manhattan">Manhattan Heuristic</option>
-                            <option value="chebyshev">Chebyshev Heuristic</option>
-                            <option value="euclidean">Euclidean Heuristic</option>
-                        </select>
-                    </span>
+                    <select id="heuristic-type" class="menu-button">
+                        <option value="manhattan">Manhattan Heuristic</option>
+                        <option value="chebyshev">Chebyshev Heuristic</option>
+                        <option value="euclidean">Euclidean Heuristic</option>
+                        <option value="combination">Combination Heuristic</option>
+                    </select>
 
-                    <span class="menu-segment">
-                        <button class="menu-button" id="reset-walls">Reset Walls and Weights</button>
-                    </span>
+                    <button class="menu-button" id="reset-walls">Reset Walls and Weights</button>
+                    <button class="menu-button" id="reset-path">Reset Path</button>
+                    <button class="menu-button" id="run-algo">Run Algorithm</button>
 
-                    <span class="menu-segment">
-                        <button class="menu-button" id="reset-path">Reset Path</button>
-                    </span>
-
-                    <span class="menu-segment">
-                        <button class="menu-button" id="run-algo">Run Algorithm</button>
-                    </span>
                 </ul>
             </nav>
         </header>
@@ -77,7 +64,8 @@
         <span class="color-codes">🟨 Final Path</span>
 
         <div id="description">
-            A* combines heuristics and lowest weight path, so guarantees the shortest path if our heuristic doesn't overestimate the distance
+            A* combines heuristics and lowest weight path, so guarantees the shortest path if our heuristic doesn't
+            overestimate the distance
         </div>
 
         <table id="grid"></table>
@@ -89,7 +77,7 @@
             <p class="sub-heading">This tutorial will explain what this app is and walk you through the features</p>
             <p>You can jump in immediately by pressing "skip tutorial", or click "next" to access the next
                 portion of the tutorial</p>
-        
+
             <img id="graph-image" class="modal-image" src="assets/graph.svg">
             <button class="finish-tutorial modal-button">Skip Tutorial</button>
             <button class="next-page modal-button">Next</button>
@@ -105,7 +93,7 @@
             <p>To demonstrate the algorithms I've used a grid whose tiles light up to show what the algorithm is doing
                 at any point in time</p>
             <p>You can add in walls that the algorithm can't cross to see how the algorithms will react</p>
-        
+
             <button class="finish-tutorial modal-button">Skip Tutorial</button>
             <button class="previous-page modal-button">Previous</button>
             <button class="next-page modal-button">Next</button>
@@ -121,7 +109,7 @@
                 can guarantee that there's no other path that's shorter than theirs</p>
             <p>Some algorithms are what's known as "weighted", and some are "unweighted". We'll get into what this means
                 on the next page</p>
-        
+
             <button class="finish-tutorial modal-button">Skip Tutorial</button>
             <button class="previous-page modal-button">Previous</button>
             <button class="next-page modal-button">Next</button>
@@ -137,7 +125,7 @@
             <p>To find the shortest path, some algorithms will try to minimise the total cost. Algorithms that do this
                 are weighted</p>
             <p>However some algorithms simply ignore these weights. These algorithms are unweighted</p>
-        
+
             <button class="finish-tutorial modal-button">Skip Tutorial</button>
             <button class="previous-page modal-button">Previous</button>
             <button class="next-page modal-button">Next</button>
@@ -147,11 +135,13 @@
             <h1 class="heading">Heuristics</h1>
             <p>A* and Greedy Best First Search both use something called heuristics to find their path faster</p>
             <p>This is essentially where we give an algorithm a bias in favour of tiles that are near the goal</p>
-            <p>So when considering which tiles to go to next, the algorithms are more likely to pick ones nearer to the goal</p>
+            <p>So when considering which tiles to go to next, the algorithms are more likely to pick ones nearer to the
+                goal</p>
             <p>In the dropdown menu, you can select different ways of calculating the distance from the goal</p>
             <p>Depending on which one you pick, the algorithms will behave differently</p>
-            <p>Note that this only has an effect for A*, Bidirectional A*, Greedy Best First Search and Bidirectional GBFS</p>
-        
+            <p>Note that this only has an effect for A*, Bidirectional A*, Greedy Best First Search and Bidirectional
+                GBFS</p>
+
             <button class="finish-tutorial modal-button">Skip Tutorial</button>
             <button class="previous-page modal-button">Previous</button>
             <button class="next-page modal-button">Next</button>
@@ -162,7 +152,7 @@
             <p>You can draw walls and weights on the grid to see how the algorithms react to them</p>
             <p>To do this simply drag your mouse along the grid and it'll smoothly draw across it</p>
             <p>You can configure which one you want to draw using the menu at the top of the screen</p>
-        
+
             <img class="modal-image" src="assets/walls.png">
             <button class="finish-tutorial modal-button">Skip Tutorial</button>
             <button class="previous-page modal-button">Previous</button>
@@ -172,7 +162,7 @@
         <div class="tutorial-modal" id="modal7">
             <h1 class="heading">Moving start and goal tiles</h1>
             <p>To move a start or goal tile, simply drag and drop it onto an empty tile</p>
-        
+
             <img class="modal-image" src="assets/moveTile.png">
             <button class="finish-tutorial modal-button">Skip Tutorial</button>
             <button class="previous-page modal-button">Previous</button>
@@ -184,7 +174,7 @@
             <p>You don't have to draw walls and weights manually</p>
             <p>If you select an item from the dropdown menu under "wall patterns" it will generate a maze of walls or
                 weights automatically</p>
-        
+
             <img class="modal-image" src="assets/maze.png">
             <button class="finish-tutorial modal-button">Skip Tutorial</button>
             <button class="previous-page modal-button">Previous</button>
@@ -195,7 +185,7 @@
             <h1 class="heading">Running an Algorithm</h1>
             <p>Simply select an algorithm from the dropdown menu at the top left corner and click "run algorithm" at the
                 top right corner</p>
-        
+
             <img class="modal-image" src="assets/runAlgo.png">
             <button class="finish-tutorial modal-button">Skip Tutorial</button>
             <button class="previous-page modal-button">Previous</button>
@@ -213,7 +203,7 @@
             <button class="finish-tutorial modal-button">Skip Tutorial</button>
             <button class="previous-page modal-button">Previous</button>
             <button id="finish-final-modal" class="finish-tutorial modal-button">Done</button>
-        </div>               
+        </div>
     </div>
 </body>
 
