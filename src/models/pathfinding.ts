@@ -50,32 +50,6 @@ export function toggleTile(coord: Coord) {
     tilePlacementFunc(coord);
 }
 
-// If there's a wall at coord, remove it. Else, add a wall there
-export function toggleWall(coord: Coord) {
-    if (walls.has(coord)) {
-        notifyController(ModelMessages.RemoveWall, coord);
-        walls.unfill(coord);
-    } else if (!isStart(coord) && !isGoal(coord)) {
-        notifyController(ModelMessages.RenderWall, coord);
-        walls.fill(coord);
-    }
-}
-
-// If there's a weight at coord, remove it. Else, add a weight there
-export function toggleWeight([row, col]: Coord) {
-    const coord: Coord = [row, col];
-
-    if (weights[row][col] !== 1) {
-        notifyController(ModelMessages.RemoveWeight, coord);
-        weights[row][col] = 1;
-    } else if (!isStart(coord) && !isGoal(coord)) {
-        const weight = randomIntBetween(10, 100);
-
-        notifyController(ModelMessages.RenderWeight, [row, col, weight]);
-        weights[row][col] = weight;
-    }
-}
-
 export function setStart(coord: Coord) {
     start = coord;
 }
@@ -258,6 +232,32 @@ function divideHorizontally(baseRow: number, baseCol: number, height: number, wi
         divideHorizontally(baseRow, baseCol, (wallRow - baseRow) - 1, width);
         divideHorizontally(wallRow + 1, baseCol, (baseRow + height - wallRow) - 1, width);
     }   
+}
+
+// If there's a wall at coord, remove it. Else, add a wall there
+function toggleWall(coord: Coord) {
+    if (walls.has(coord)) {
+        notifyController(ModelMessages.RemoveWall, coord);
+        walls.unfill(coord);
+    } else if (!isStart(coord) && !isGoal(coord)) {
+        notifyController(ModelMessages.RenderWall, coord);
+        walls.fill(coord);
+    }
+}
+
+// If there's a weight at coord, remove it. Else, add a weight there
+function toggleWeight([row, col]: Coord) {
+    const coord: Coord = [row, col];
+
+    if (weights[row][col] !== 1) {
+        notifyController(ModelMessages.RemoveWeight, coord);
+        weights[row][col] = 1;
+    } else if (!isStart(coord) && !isGoal(coord)) {
+        const weight = randomIntBetween(10, 100);
+
+        notifyController(ModelMessages.RenderWeight, [row, col, weight]);
+        weights[row][col] = weight;
+    }
 }
 
 // Generic pathfinding algo for searching from a source. Parameterized with the data structure used to make it generic

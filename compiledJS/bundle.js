@@ -358,7 +358,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.divideHorizontal = exports.divideVertical = exports.bidirectionalAstar = exports.bidirectionalRandomSearch = exports.bidirectionalDijkstra = exports.bidirectionalBestFirstSearch = exports.bidirectionalBFS = exports.bidirectionalDFS = exports.setBlockTypeToWeight = exports.setBlockTypeToWall = exports.randomMaze = exports.randomSearch = exports.dijkstra = exports.astar = exports.bestFirstSearch = exports.breadthFirstSearch = exports.depthFirstSearch = exports.resetWalls = exports.setGoal = exports.setStart = exports.toggleWeight = exports.toggleWall = exports.toggleTile = exports.initPathfinding = void 0;
+exports.divideHorizontal = exports.divideVertical = exports.bidirectionalAstar = exports.bidirectionalRandomSearch = exports.bidirectionalDijkstra = exports.bidirectionalBestFirstSearch = exports.bidirectionalBFS = exports.bidirectionalDFS = exports.setBlockTypeToWeight = exports.setBlockTypeToWall = exports.randomMaze = exports.randomSearch = exports.dijkstra = exports.astar = exports.bestFirstSearch = exports.breadthFirstSearch = exports.depthFirstSearch = exports.resetWalls = exports.setGoal = exports.setStart = exports.toggleTile = exports.initPathfinding = void 0;
 var grid_1 = require("./grid");
 var hashMap_1 = require("./hashMap");
 var priorityQueue_1 = require("./priorityQueue");
@@ -389,33 +389,6 @@ function toggleTile(coord) {
     tilePlacementFunc(coord);
 }
 exports.toggleTile = toggleTile;
-// If there's a wall at coord, remove it. Else, add a wall there
-function toggleWall(coord) {
-    if (walls.has(coord)) {
-        notifyController(3 /* RemoveWall */, coord);
-        walls.unfill(coord);
-    }
-    else if (!isStart(coord) && !isGoal(coord)) {
-        notifyController(2 /* RenderWall */, coord);
-        walls.fill(coord);
-    }
-}
-exports.toggleWall = toggleWall;
-// If there's a weight at coord, remove it. Else, add a weight there
-function toggleWeight(_a) {
-    var row = _a[0], col = _a[1];
-    var coord = [row, col];
-    if (weights[row][col] !== 1) {
-        notifyController(5 /* RemoveWeight */, coord);
-        weights[row][col] = 1;
-    }
-    else if (!isStart(coord) && !isGoal(coord)) {
-        var weight = utils_1.randomIntBetween(10, 100);
-        notifyController(6 /* RenderWeight */, [row, col, weight]);
-        weights[row][col] = weight;
-    }
-}
-exports.toggleWeight = toggleWeight;
 function setStart(coord) {
     start = coord;
 }
@@ -705,6 +678,31 @@ function divideHorizontally(baseRow, baseCol, height, width) {
         }
         divideHorizontally(baseRow, baseCol, (wallRow - baseRow) - 1, width);
         divideHorizontally(wallRow + 1, baseCol, (baseRow + height - wallRow) - 1, width);
+    }
+}
+// If there's a wall at coord, remove it. Else, add a wall there
+function toggleWall(coord) {
+    if (walls.has(coord)) {
+        notifyController(3 /* RemoveWall */, coord);
+        walls.unfill(coord);
+    }
+    else if (!isStart(coord) && !isGoal(coord)) {
+        notifyController(2 /* RenderWall */, coord);
+        walls.fill(coord);
+    }
+}
+// If there's a weight at coord, remove it. Else, add a weight there
+function toggleWeight(_a) {
+    var row = _a[0], col = _a[1];
+    var coord = [row, col];
+    if (weights[row][col] !== 1) {
+        notifyController(5 /* RemoveWeight */, coord);
+        weights[row][col] = 1;
+    }
+    else if (!isStart(coord) && !isGoal(coord)) {
+        var weight = utils_1.randomIntBetween(10, 100);
+        notifyController(6 /* RenderWeight */, [row, col, weight]);
+        weights[row][col] = weight;
     }
 }
 // Generic pathfinding algo for searching from a source. Parameterized with the data structure used to make it generic
