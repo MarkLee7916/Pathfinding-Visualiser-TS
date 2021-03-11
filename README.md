@@ -3,7 +3,7 @@
 <p>You can drag your mouse along the screen to draw either walls or weights depending on what you have selected in the dropdown menu</p>
 <p>You can move the start and goal tiles by dragging and dropping onto another tile</p>
 
-<h2>Tooling<h2>
+<h2>Tooling</h2>
 <p>I used the TypeScript compiler to produce a .js file for every .ts file, and watchify to bundle into a single .js file, which is linked from index.html</p>
 <p>Other than that this project has no dependencies</p>
 
